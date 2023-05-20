@@ -14,6 +14,7 @@ import java.util.HashMap;
 import org.springframework.stereotype.Service;
 
 import com.clothesShop.mypcg.entity.Account;
+import com.clothesShop.mypcg.exception.AuthenticationException;
 import com.clothesShop.mypcg.repository.AccountRepository;
 
 import io.jsonwebtoken.JwtBuilder;
@@ -30,17 +31,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public boolean authenticate(String username, String password) {
+    public boolean authenticate(String username, String password) throws AuthenticationException {
         // Retrieve user from the repository based on the username
         Optional<Account> accountOptional = accountRepository.findByUserName(username);
         
         if (accountOptional.isPresent()) {
             Account account = accountOptional.get();
             // Compare the provided password with the account's actual password
-            return password.equals(account.getPassword());
+            if (password.equals(account.getPassword())) {
+                return true;
+            } else {
+                throw new AuthenticationException("Invalid password");
+            }
         }
         
-        return false;
+        throw new AuthenticationException("User not found");
     }
     
     

@@ -53,7 +53,6 @@ INDEX VERSION 1.132+C:\Users\a.vrekic\Desktop\ClothesShop\.metadata\.plugins\org
 948274042.index
 566091494.index
 167565924.index
-2558996174.index
 2445261154.index
 1295505947.index
 3677211106.index

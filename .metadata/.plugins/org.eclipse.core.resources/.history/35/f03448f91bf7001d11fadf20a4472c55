@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.token;
+
+public class TokenGenerator {
+
+}

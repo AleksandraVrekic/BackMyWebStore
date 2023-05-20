@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.auth;
+
+public class AuthController {
+
+}

@@ -1,0 +1,40 @@
+package com.clothesShop.mypcg.auth;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.clothesShop.mypcg.dto.LoginRequestDTO;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+    private final AuthenticationService authService;
+
+    public AuthController(AuthenticationService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginRequest) {
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
+        
+        // Authenticate user credentials
+        boolean authenticated = authService.authenticate(username, password);
+        
+        if (authenticated) {
+            // Generate token
+            String token = authService.generateToken(username);
+            
+            // Return token in the response
+            return ResponseEntity.ok(token);
+        } else {
+            // Return unauthorized status if authentication fails
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        }
+    }
+}

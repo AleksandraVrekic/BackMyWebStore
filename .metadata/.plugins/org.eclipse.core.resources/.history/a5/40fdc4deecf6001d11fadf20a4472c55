@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.entity;
+
+public class OrderDetail {
+
+}

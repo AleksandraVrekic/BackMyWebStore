@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.repository;
+
+public interface OrderDetailRepository {
+
+}

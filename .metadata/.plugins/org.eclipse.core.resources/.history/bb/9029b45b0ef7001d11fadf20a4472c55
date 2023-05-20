@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.exception;
+
+public class OrderDetailNotFoundException {
+
+}

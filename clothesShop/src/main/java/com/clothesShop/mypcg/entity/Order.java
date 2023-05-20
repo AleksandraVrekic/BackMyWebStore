@@ -1,7 +1,10 @@
 package com.clothesShop.mypcg.entity;
 
 import javax.persistence.*;
-import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "orders")
@@ -26,7 +29,8 @@ public class Order {
     private String customerPhone;
 
     @Column(name = "order_date", nullable = false)
-    private Date orderDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate orderDate;
 
     @Column(name = "order_num", nullable = false, unique = true)
     private Integer orderNum;
@@ -36,7 +40,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(double amount, String customerAddress, String customerEmail, String customerName, String customerPhone, Date orderDate, Integer orderNum) {
+    public Order(double amount, String customerAddress, String customerEmail, String customerName, String customerPhone, LocalDate orderDate, Integer orderNum) {
         this.amount = amount;
         this.customerAddress = customerAddress;
         this.customerEmail = customerEmail;
@@ -94,11 +98,11 @@ public class Order {
         this.customerPhone = customerPhone;
     }
 
-    public Date getOrderDate() {
+    public LocalDate getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(Date orderDate) {
+    public void setOrderDate(LocalDate orderDate) {
         this.orderDate = orderDate;
     }
 

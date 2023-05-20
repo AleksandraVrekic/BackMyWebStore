@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.mapper;
+
+public class OrderDetailMapper {
+
+}

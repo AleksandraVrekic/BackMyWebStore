@@ -1,0 +1,69 @@
+package com.clothesShop.mypcg.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.clothesShop.mypcg.entity.OrderDetail;
+import com.clothesShop.mypcg.service.OrderDetailsService;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/order-details")
+public class OrderDetailController {
+
+    private final OrderDetailsService orderDetailService;
+
+    @Autowired
+    public OrderDetailController(OrderDetailsService orderDetailService) {
+        this.orderDetailService = orderDetailService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderDetail>> getAllOrderDetails() {
+        List<OrderDetail> orderDetails = orderDetailService.getAllOrderDetails();
+        return new ResponseEntity<>(orderDetails, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDetail> getOrderDetailById(@PathVariable int id) {
+        Optional<OrderDetail> orderDetailOptional = orderDetailService.getOrderDetailsById(id);
+        if (orderDetailOptional.isPresent()) {
+            OrderDetail orderDetail = orderDetailOptional.get();
+            return new ResponseEntity<>(orderDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @PostMapping
+    public ResponseEntity<OrderDetail> createOrderDetail(@RequestBody OrderDetail orderDetail) {
+        OrderDetail createdOrderDetail = orderDetailService.createOrderDetails(orderDetail);
+        return new ResponseEntity<>(createdOrderDetail, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderDetail> updateOrderDetail(@PathVariable int id, @RequestBody OrderDetail updatedOrderDetail) {
+        OrderDetail orderDetail = orderDetailService.updateOrderDetails(id, updatedOrderDetail);
+        if (orderDetail != null) {
+            return new ResponseEntity<>(orderDetail, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrderDetail(@PathVariable int id) {
+        boolean deleted = orderDetailService.deleteOrderDetails(id);
+        if (deleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+}
+

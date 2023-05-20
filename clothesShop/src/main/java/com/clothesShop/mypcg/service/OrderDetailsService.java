@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.clothesShop.mypcg.entity.OrderDetail;
+import com.clothesShop.mypcg.exception.OrderDetailNotFoundException;
 import com.clothesShop.mypcg.repository.OrderDetailRepository;
 
 import java.util.List;
@@ -31,18 +32,26 @@ public class OrderDetailsService {
         return orderDetailsRepository.save(orderDetails);
     }
 
-    public OrderDetail updateOrderDetails(int id, OrderDetail updatedOrderDetails) {
-        Optional<OrderDetail> existingOrderDetailsOptional = orderDetailsRepository.findById(id);
-        if (existingOrderDetailsOptional.isPresent()) {
-            OrderDetail existingOrderDetails = existingOrderDetailsOptional.get();
-            existingOrderDetails.setAmount(updatedOrderDetails.getAmount());
-            existingOrderDetails.setPrice(updatedOrderDetails.getPrice());
-            existingOrderDetails.setQuantity(updatedOrderDetails.getQuantity());
-            // Update other properties as needed
-            return orderDetailsRepository.save(existingOrderDetails);
+
+    public OrderDetail updateOrderDetail(OrderDetail orderDetail) {
+        // Retrieve the existing order detail
+        Optional<OrderDetail> orderDetailOptional = getOrderDetailsById(orderDetail.getId());
+        if (orderDetailOptional.isPresent()) {
+            OrderDetail existingOrderDetail = orderDetailOptional.get();
+            // Update the properties of the existing order detail
+            existingOrderDetail.setAmount(orderDetail.getAmount());
+            existingOrderDetail.setPrice(orderDetail.getPrice());
+            existingOrderDetail.setQuantity(orderDetail.getQuantity());
+
+            // Save and return the updated order detail
+            return orderDetailsRepository.save(existingOrderDetail);
+        } else {
+            throw new OrderDetailNotFoundException("Order detail not found for id: " + orderDetail.getId());
         }
-        return null;
     }
+
+    
+
 
     public boolean deleteOrderDetails(int id) {
         Optional<OrderDetail> orderDetailsOptional = orderDetailsRepository.findById(id);

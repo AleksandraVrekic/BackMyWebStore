@@ -1,0 +1,14 @@
+package com.clothesShop.mypcg;
+
+import org.springframework.boot.SpringApplication;
+import com.clothesShop.mypcg.config.DataSourceConfig;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication(exclude = {DataSourceConfig.class })
+public class ClothesShopApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ClothesShopApplication.class, args);
+	}
+
+}

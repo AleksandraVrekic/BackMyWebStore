@@ -1,0 +1,21 @@
+package com.clothesShop.mypcg.utils;
+
+public class AuthUtils {
+    public static boolean isAuthenticated() {
+        // Implement authentication logic here
+        // Check if the user is authenticated and return true or false accordingly
+        // You can use frameworks like Spring Security for authentication
+    }
+    
+    public static boolean isAuthorized() {
+        // Implement authorization logic here
+        // Check if the user is authorized and return true or false accordingly
+        // You can define your own authorization rules based on user roles or permissions
+    }
+    
+    public static boolean isManager() {
+        // Implement manager role check logic here
+        // Check if the user has the manager role and return true or false accordingly
+    }
+}
+

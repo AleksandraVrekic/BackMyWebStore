@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.clothesShop.mypcg.auth.AuthenticationService;
 import com.clothesShop.mypcg.dto.OrderDetailRequestDTO;
 import com.clothesShop.mypcg.dto.OrderDetailResponseDTO;
 import com.clothesShop.mypcg.entity.OrderDetail;
@@ -15,6 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/order-details")
 public class OrderDetailController {
@@ -24,15 +28,39 @@ public class OrderDetailController {
     
     @Autowired
     private OrderDetailMapper orderDetailMapper;
-
+    
+    private final AuthenticationService authService;
 
     @Autowired
-    public OrderDetailController(OrderDetailsService orderDetailService) {
+    public OrderDetailController(OrderDetailsService orderDetailService, AuthenticationService authService) {
         this.orderDetailService = orderDetailService;
+        this.authService = authService;
     }
 
+    private String getLoggedInUsername(HttpServletRequest request) {
+        // Retrieve the username from the request or session, based on your authentication mechanism
+        // For example, if you store the authenticated username in the session attribute
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            return (String) session.getAttribute("authenticatedUser");
+        }
+        
+        // If you are using a different authentication mechanism, adapt this method accordingly
+        
+        return null;
+    }
+    
     @GetMapping
-    public ResponseEntity<List<OrderDetailResponseDTO>> getAllOrderDetails() {
+    public ResponseEntity<List<OrderDetailResponseDTO>> getAllOrderDetails(HttpServletRequest request) {
+        String username = getLoggedInUsername(request);
+
+        // Check if the user is authenticated
+        boolean isAuthenticated = authService.isAuthenticated(username, request);
+
+        if (!isAuthenticated) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         List<OrderDetail> orderDetails = orderDetailService.getAllOrderDetails();
         List<OrderDetailResponseDTO> responseDTOs = orderDetails.stream()
                 .map(orderDetailMapper::mapToDTO)
@@ -41,8 +69,18 @@ public class OrderDetailController {
     }
 
 
+
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDetailResponseDTO> getOrderDetailById(@PathVariable int id) {
+    public ResponseEntity<OrderDetailResponseDTO> getOrderDetailById(@PathVariable int id, HttpServletRequest request) {
+        String username = getLoggedInUsername(request);
+
+        // Check if the user is authenticated
+        boolean isAuthenticated = authService.isAuthenticated(username, request);
+
+        if (!isAuthenticated) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         Optional<OrderDetail> orderDetailOptional = orderDetailService.getOrderDetailsById(id);
         if (orderDetailOptional.isPresent()) {
             OrderDetail orderDetail = orderDetailOptional.get();
@@ -55,8 +93,18 @@ public class OrderDetailController {
 
 
 
+
     @PostMapping
-    public ResponseEntity<OrderDetail> createOrderDetail(@RequestBody OrderDetailRequestDTO requestDTO) {
+    public ResponseEntity<OrderDetail> createOrderDetail(@RequestBody OrderDetailRequestDTO requestDTO, HttpServletRequest request) {
+        String username = getLoggedInUsername(request);
+
+        // Check if the user is authenticated
+        boolean isAuthenticated = authService.isAuthenticated(username, request);
+
+        if (!isAuthenticated) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         // Convert the requestDTO to an OrderDetail entity and save it
         OrderDetail orderDetail = orderDetailMapper.mapToEntity(requestDTO);
         OrderDetail createdOrderDetail = orderDetailService.createOrderDetails(orderDetail);
@@ -64,15 +112,25 @@ public class OrderDetailController {
     }
 
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<OrderDetail> updateOrderDetail(@PathVariable int id, @RequestBody OrderDetailRequestDTO requestDTO) {
+    public ResponseEntity<OrderDetail> updateOrderDetail(@PathVariable int id, @RequestBody OrderDetailRequestDTO requestDTO, HttpServletRequest request) {
+        String username = getLoggedInUsername(request);
+
+        // Check if the user is authenticated
+        boolean isAuthenticated = authService.isAuthenticated(username, request);
+
+        if (!isAuthenticated) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         Optional<OrderDetail> orderDetailOptional = orderDetailService.getOrderDetailsById(id);
         if (orderDetailOptional.isPresent()) {
             OrderDetail orderDetail = orderDetailOptional.get();
             orderDetail.setAmount(requestDTO.getAmount());
             orderDetail.setPrice(requestDTO.getPrice());
             orderDetail.setQuantity(requestDTO.getQuantity());
-            
+
             OrderDetail savedOrderDetail = orderDetailService.updateOrderDetail(orderDetail);
             return new ResponseEntity<>(savedOrderDetail, HttpStatus.OK);
         } else {
@@ -80,13 +138,17 @@ public class OrderDetailController {
         }
     }
 
-
-
-
-
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrderDetail(@PathVariable int id) {
+    public ResponseEntity<Void> deleteOrderDetail(@PathVariable int id, HttpServletRequest request) {
+        String username = getLoggedInUsername(request);
+
+        // Check if the user is authenticated
+        boolean isAuthenticated = authService.isAuthenticated(username, request);
+
+        if (!isAuthenticated) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         boolean deleted = orderDetailService.deleteOrderDetails(id);
         if (deleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -94,5 +156,6 @@ public class OrderDetailController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 }
 

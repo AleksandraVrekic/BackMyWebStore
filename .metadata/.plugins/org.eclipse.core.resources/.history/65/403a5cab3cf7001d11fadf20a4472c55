@@ -1,0 +1,112 @@
+package com.clothesShop.mypcg.auth;
+
+import java.security.Key;
+import java.util.Date;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import java.util.Map;
+import java.util.HashMap;
+
+
+import org.springframework.stereotype.Service;
+
+import com.clothesShop.mypcg.entity.Account;
+import com.clothesShop.mypcg.repository.AccountRepository;
+
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+@Service
+public class AuthenticationServiceImpl implements AuthenticationService {
+    private final AccountRepository accountRepository;
+    
+    public AuthenticationServiceImpl(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
+    @Override
+    public boolean authenticate(String username, String password) {
+        // Retrieve user from the repository based on the username
+        Optional<Account> accountOptional = accountRepository.findByUserName(username);
+        
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            // Compare the provided password with the account's actual password
+            return password.equals(account.getPassword());
+        }
+        
+        return false;
+    }
+    
+    
+    private static final long TOKEN_EXPIRATION_TIME = 86400000; // 24 hours in milliseconds
+    Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    
+    @Override
+    public String generateToken(String username) {
+        // Set the token expiration time
+
+    	
+        long expirationTimeMillis = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME;
+        
+        // Create the claims for the token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
+        
+        // Build the JWT
+        JwtBuilder jwtBuilder = Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(new Date(expirationTimeMillis))
+                .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256));
+        
+        // Generate the token
+        String token = jwtBuilder.compact();
+        
+        return token;
+    }
+    
+    @Override
+    public boolean isAuthenticated(String username, HttpServletRequest request) {
+        // Get the current session
+        HttpSession session = request.getSession(false);
+        
+        // Check if the session exists and if the user is authenticated
+        if (session != null && session.getAttribute("authenticatedUser") != null) {
+            String authenticatedUsername = (String) session.getAttribute("authenticatedUser");
+            return username.equals(authenticatedUsername);
+        }
+        
+        return false;
+    }
+    
+
+    @Override
+    public boolean isManager(HttpServletRequest request) {
+        // Retrieve the logged-in username from the request or session
+        String username = getLoggedInUsername(request);
+        
+        // Use the username to check if the user is a manager
+        // Retrieve the account from the repository
+        Optional<Account> accountOptional = accountRepository.findByUserName(username);
+        
+        // Check if the account exists and if the account's role is "manager"
+        return accountOptional.isPresent() && accountOptional.get().getUserRole().equals("ROLE_MANAGER");
+    }
+    
+    private String getLoggedInUsername(HttpServletRequest request) {
+        // Retrieve the username from the request or session, based on your authentication mechanism
+        // For example, if you store the authenticated username in the session attribute
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            return (String) session.getAttribute("authenticatedUser");
+        }
+
+    
+    // Implement more methods for user-related operations
+    
+}

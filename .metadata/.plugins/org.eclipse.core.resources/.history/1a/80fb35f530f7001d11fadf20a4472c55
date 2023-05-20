@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.utils;
+
+public class AuthUtils {
+
+}

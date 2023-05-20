@@ -1,0 +1,118 @@
+package com.clothesShop.mypcg.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.clothesShop.mypcg.auth.AuthenticationService;
+import com.clothesShop.mypcg.entity.Product;
+import com.clothesShop.mypcg.service.ProductService;
+
+import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    private final ProductService productService;
+    private final AuthenticationService authService;
+
+    public ProductController(ProductService productService, AuthenticationService authService) {
+        this.productService = productService;
+        this.authService = authService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable int id) {
+        Optional<Product> productOptional = productService.getProductById(id);
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            return new ResponseEntity<>(product, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    private String getLoggedInUsername(HttpServletRequest request) {
+        // Retrieve the username from the request or session, based on your authentication mechanism
+        // For example, if you store the authenticated username in the session attribute
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            return (String) session.getAttribute("authenticatedUser");
+        }
+        
+        // If you are using a different authentication mechanism, adapt this method accordingly
+        
+        return null;
+    }
+
+
+    @PostMapping("/products")
+    public ResponseEntity<Product> createProduct(@RequestBody Product product, HttpServletRequest request) {
+        // Check if the user is authenticated and authorized as a manager
+        boolean isAuthenticated = authService.isAuthenticated(getLoggedInUsername(request), request);
+        boolean isManager = authService.isManager(request);
+        
+        if (!isAuthenticated || !isManager) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Product createdProduct = productService.createProduct(product);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct, HttpServletRequest request) {
+        String username = getLoggedInUsername(request);
+
+        // Check if the user is authenticated and authorized as a manager
+        boolean isAuthenticated = authService.isAuthenticated(username, request);
+        boolean isManager = authService.isManager(request);
+
+        if (!isAuthenticated || !isManager) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Product product = productService.updateProduct(id, updatedProduct);
+        if (product != null) {
+            return new ResponseEntity<>(product, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable int id, HttpServletRequest request) {
+        String username = getLoggedInUsername(request);
+
+        // Check if the user is authenticated and authorized as a manager
+        boolean isAuthenticated = authService.isAuthenticated(username, request);
+        boolean isManager = authService.isManager(request);
+
+        if (!isAuthenticated || !isManager) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        boolean deleted = productService.deleteProduct(id);
+        if (deleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+}
+

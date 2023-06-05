@@ -1,8 +1,0 @@
-package com.clothesShop.mypcg.auth;
-
-public interface AuthenticationService {
-    boolean authenticate(String username, String password);
-    String generateToken(String username);
-    boolean isAuthenticated(String username);
-    
-}

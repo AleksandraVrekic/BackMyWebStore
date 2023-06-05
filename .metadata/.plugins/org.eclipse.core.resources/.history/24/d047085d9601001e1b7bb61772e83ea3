@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.security;
+
+public class SecurityConfig {
+
+}

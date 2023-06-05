@@ -2,12 +2,17 @@ package com.clothesShop.mypcg.auth;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.clothesShop.mypcg.dto.RegistrationRequestDTO;
 import com.clothesShop.mypcg.exception.AuthenticationException;
+import com.clothesShop.mypcg.exception.RegistrationException;
 
 public interface AuthenticationService {
-    boolean authenticate(String username, String password) throws AuthenticationException;
+    boolean authenticate(String username, String password);
     String generateToken(String username);
     boolean isAuthenticated(String username, HttpServletRequest request);
     boolean isManager(HttpServletRequest request);
+    void registerUser(RegistrationRequestDTO registrationRequest);
+    void invalidateToken(String token);
+
     
 }

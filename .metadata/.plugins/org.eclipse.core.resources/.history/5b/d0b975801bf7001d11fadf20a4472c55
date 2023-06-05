@@ -1,5 +1,0 @@
-package com.clothesShop.mypcg.dto;
-
-public class LoginRequestDTO {
-
-}

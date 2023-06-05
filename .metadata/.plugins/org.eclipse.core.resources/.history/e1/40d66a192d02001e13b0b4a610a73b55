@@ -1,0 +1,5 @@
+package com.clothesShop.mypcg.cors;
+
+public class CorsConfig {
+
+}

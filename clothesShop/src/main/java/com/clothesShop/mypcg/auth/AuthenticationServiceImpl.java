@@ -9,12 +9,16 @@ import javax.servlet.http.HttpSession;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 
 import org.springframework.stereotype.Service;
 
+import com.clothesShop.mypcg.dto.RegistrationRequestDTO;
 import com.clothesShop.mypcg.entity.Account;
 import com.clothesShop.mypcg.exception.AuthenticationException;
+import com.clothesShop.mypcg.exception.RegistrationException;
 import com.clothesShop.mypcg.repository.AccountRepository;
 
 import io.jsonwebtoken.JwtBuilder;
@@ -25,19 +29,25 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final AccountRepository accountRepository;
+    private Set<String> tokenBlacklist = new HashSet<>();
     
     public AuthenticationServiceImpl(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
     @Override
-    public boolean authenticate(String username, String password) throws AuthenticationException {
+    public void invalidateToken(String token) {
+        // Add the token to the blacklist
+        tokenBlacklist.add(token);
+    }
+    
+    @Override
+    public boolean authenticate(String username, String password) {
         // Retrieve user from the repository based on the username
         Optional<Account> accountOptional = accountRepository.findByUserName(username);
         
         if (accountOptional.isPresent()) {
             Account account = accountOptional.get();
-            // Compare the provided password with the account's actual password
             if (password.equals(account.getPassword())) {
                 return true;
             } else {
@@ -111,11 +121,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return (String) session.getAttribute("authenticatedUser");
         }
         
-        // If you are using a different authentication mechanism, adapt this method accordingly
+       
         
         return null;
     }
-}
     
-    // Implement more methods for user-related operations
+
+    @Override
+    public void registerUser(RegistrationRequestDTO registrationRequest) throws RegistrationException {
+        // Proverite da li korisnik sa istim korisničkim imenom već postoji u bazi
+        if (accountRepository.findByUserName(registrationRequest.getUsername()).isPresent()) {
+            throw new RegistrationException("Korisničko ime već postoji.");
+        }
+        
+        // Kreirajte novi korisnički nalog
+        Account account = new Account();
+        account.setUserName(registrationRequest.getUsername());
+        account.setPassword(registrationRequest.getPassword());
+        account.setUserRole(registrationRequest.getUserRole());
+        // Postavite ostale podatke korisnika
+        
+        // Sačuvajte korisnika u bazi
+        accountRepository.save(account);
+    }
+}
     

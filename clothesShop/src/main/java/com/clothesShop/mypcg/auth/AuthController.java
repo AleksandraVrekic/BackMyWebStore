@@ -1,5 +1,6 @@
 package com.clothesShop.mypcg.auth;
 
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,8 @@ import com.clothesShop.mypcg.dto.LoginRequestDTO;
 import com.clothesShop.mypcg.dto.RegistrationRequestDTO;
 import com.clothesShop.mypcg.exception.AuthenticationException;
 import com.clothesShop.mypcg.exception.RegistrationException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/auth")
@@ -63,8 +66,12 @@ public class AuthController {
         // Invalidate the token by removing it from the authentication service
         authService.invalidateToken(token);
 
-        // Return a success response
-        return ResponseEntity.ok("Logout successful");
+        // Set the Content-Type header to application/json
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Return a success response with JSON body
+        return ResponseEntity.ok().headers(headers).body("{\"message\": \"Logout successful\"}");
     }
 
     private String extractTokenFromHeaders(HttpServletRequest request) {

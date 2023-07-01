@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.clothesShop.mypcg.auth.AuthenticationService;
+import com.clothesShop.mypcg.dto.ProductSaleRequest;
+import com.clothesShop.mypcg.dto.ProductSaleResponse;
 import com.clothesShop.mypcg.entity.Product;
 import com.clothesShop.mypcg.service.ProductService;
 
@@ -13,6 +15,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
 
 @RestController
 @RequestMapping("/products")
@@ -57,33 +60,15 @@ public class ProductController {
     }
 
 
-    @PostMapping("/products")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product, HttpServletRequest request) {
-        // Check if the user is authenticated and authorized as a manager
-        boolean isAuthenticated = authService.isAuthenticated(getLoggedInUsername(request), request);
-        boolean isManager = authService.isManager(request);
-        
-        if (!isAuthenticated || !isManager) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         Product createdProduct = productService.createProduct(product);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct, HttpServletRequest request) {
-        String username = getLoggedInUsername(request);
-
-        // Check if the user is authenticated and authorized as a manager
-        boolean isAuthenticated = authService.isAuthenticated(username, request);
-        boolean isManager = authService.isManager(request);
-
-        if (!isAuthenticated || !isManager) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
         Product product = productService.updateProduct(id, updatedProduct);
         if (product != null) {
             return new ResponseEntity<>(product, HttpStatus.OK);
@@ -92,24 +77,24 @@ public class ProductController {
         }
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable int id, HttpServletRequest request) {
-        String username = getLoggedInUsername(request);
-
-        // Check if the user is authenticated and authorized as a manager
-        boolean isAuthenticated = authService.isAuthenticated(username, request);
-        boolean isManager = authService.isManager(request);
-
-        if (!isAuthenticated || !isManager) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+    public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
         boolean deleted = productService.deleteProduct(id);
         if (deleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    @PostMapping("/sell/{productId}")
+    public ResponseEntity<ProductSaleResponse> sellProduct(@PathVariable int productId, @RequestBody ProductSaleRequest request) {
+        try {
+            Product product = productService.sellProduct(request);
+            ProductSaleResponse response = new ProductSaleResponse(product);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 

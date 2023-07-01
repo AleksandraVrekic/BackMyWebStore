@@ -13,9 +13,6 @@ public class Account {
     @Column(name = "user_name", length = 20, nullable = false)
     private String userName;
 
-    @Column(name = "active", nullable = false)
-    private boolean active;
-
     @Column(name = "password", length = 25, nullable = false)
     private String password;
 
@@ -27,9 +24,8 @@ public class Account {
     public Account() {
     }
 
-    public Account(String userName, boolean active, String password, String userRole) {
+    public Account(String userName,String password, String userRole) {
         this.userName = userName;
-        this.active = active;
         this.password = password;
         this.userRole = userRole;
     }
@@ -48,14 +44,6 @@ public class Account {
 
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public String getPassword() {

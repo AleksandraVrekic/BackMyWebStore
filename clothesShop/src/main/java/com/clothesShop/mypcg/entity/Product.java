@@ -1,7 +1,6 @@
 package com.clothesShop.mypcg.entity;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "products")
@@ -22,21 +21,21 @@ public class Product {
 
     @Column(name = "price", nullable = false)
     private double price;
-
-    @Column(name = "create_date", nullable = false)
-    private Date createDate;
+    
+    @Column(name = "quantity", nullable = true)
+    private int quantity;
 
     // Constructors, getters, and setters
 
     public Product() {
     }
 
-    public Product(String code, String name, String description, double price, Date createDate) {
+    public Product(String code, String name, String description, double price, int quantity) {
         this.code = code;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.createDate = createDate;
+        this.quantity = quantity;
     }
 
     public Integer getId() {
@@ -78,12 +77,13 @@ public class Product {
     public void setPrice(double price) {
         this.price = price;
     }
-
-    public Date getCreateDate() {
-        return createDate;
+    
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
+
 }

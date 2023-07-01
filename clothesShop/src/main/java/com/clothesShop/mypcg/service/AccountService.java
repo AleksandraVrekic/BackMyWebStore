@@ -37,7 +37,6 @@ public class AccountService {
         if (existingAccountOptional.isPresent()) {
             Account existingAccount = existingAccountOptional.get();
             existingAccount.setUserName(updatedAccount.getUserName());
-            existingAccount.setActive(updatedAccount.isActive());
             existingAccount.setPassword(updatedAccount.getPassword());
             existingAccount.setUserRole(updatedAccount.getUserRole());
             return accountRepository.save(existingAccount);

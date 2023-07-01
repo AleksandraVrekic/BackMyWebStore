@@ -3,6 +3,7 @@ package com.clothesShop.mypcg.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.clothesShop.mypcg.dto.ProductSaleRequest;
 import com.clothesShop.mypcg.entity.Product;
 import com.clothesShop.mypcg.repository.ProductRepository;
 
@@ -39,6 +40,7 @@ public class ProductService {
             existingProduct.setName(updatedProduct.getName());
             existingProduct.setPrice(updatedProduct.getPrice());
             existingProduct.setDescription(updatedProduct.getDescription());
+            existingProduct.setQuantity(updatedProduct.getQuantity());
             return productRepository.save(existingProduct);
         }
         return null;
@@ -52,4 +54,24 @@ public class ProductService {
         }
         return false;
     }
+    
+    public Product sellProduct(ProductSaleRequest request) {
+        Optional<Product> optionalProduct = getProductById(request.getProductId());
+
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+
+            if (product.getQuantity() >= request.getQuantity()) {
+                product.setQuantity(product.getQuantity() - request.getQuantity());
+                productRepository.save(product);
+                return product;
+            } else {
+                throw new IllegalArgumentException("Insufficient quantity of product available.");
+            }
+        } else {
+            throw new IllegalArgumentException("Product not found.");
+        }
+    }
+
+
 }

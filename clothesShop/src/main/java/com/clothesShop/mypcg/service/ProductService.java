@@ -10,6 +10,11 @@ import com.clothesShop.mypcg.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ProductService {
 
@@ -36,11 +41,12 @@ public class ProductService {
         Optional<Product> existingProductOptional = productRepository.findById(id);
         if (existingProductOptional.isPresent()) {
             Product existingProduct = existingProductOptional.get();
-            existingProduct.setCode(updatedProduct.getCode());
             existingProduct.setName(updatedProduct.getName());
-            existingProduct.setPrice(updatedProduct.getPrice());
             existingProduct.setDescription(updatedProduct.getDescription());
+            existingProduct.setPrice(updatedProduct.getPrice());
             existingProduct.setQuantity(updatedProduct.getQuantity());
+            existingProduct.setImage(updatedProduct.getImage());
+            existingProduct.setCategory(updatedProduct.getCategory());
             return productRepository.save(existingProduct);
         }
         return null;
@@ -72,6 +78,9 @@ public class ProductService {
             throw new IllegalArgumentException("Product not found.");
         }
     }
-
-
+    
+    public List<Product> getProductsByName(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
 }
+

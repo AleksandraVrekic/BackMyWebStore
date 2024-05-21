@@ -7,11 +7,10 @@ import javax.persistence.*;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(name = "code", length = 20, nullable = false)
-    private String code;
+	@SequenceGenerator(name="PRODUCT_ID_GENERATOR", sequenceName="PRODUCT_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="PRODUCT_ID_GENERATOR")
+    @Column(name = "product_id") // Ime kolone u tabeli
+    private Integer productId;
 
     @Column(name = "name", length = 255, nullable = false)
     private String name;
@@ -22,36 +21,39 @@ public class Product {
     @Column(name = "price", nullable = false)
     private double price;
     
-    @Column(name = "quantity", nullable = true)
-    private int quantity;
+    @Column(name = "quantity") // Možeš dodati length ako je potrebno
+    private Integer quantity;
+
+    @Column(name = "image") // Ako postoji kolona s imenom 'image'
+    private String image;
+
+	@ManyToOne()
+	@JoinColumn(name="category_id")
+	private Category category;
 
     // Constructors, getters, and setters
 
     public Product() {
     }
 
-    public Product(String code, String name, String description, double price, int quantity) {
-        this.code = code;
+    public Product(String name, String description, double price, Integer quantity, String image, Category category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.quantity = quantity;
+        this.image = image;
+        this.category = category;
     }
+
+    // Getters and Setters for productId, name, description, price, quantity, image, and categoryId
+    
 
     public Integer getId() {
-        return id;
+        return productId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
+    public void setId(Integer productId) {
+        this.productId = productId;
     }
 
     public String getName() {
@@ -78,12 +80,27 @@ public class Product {
         this.price = price;
     }
     
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }

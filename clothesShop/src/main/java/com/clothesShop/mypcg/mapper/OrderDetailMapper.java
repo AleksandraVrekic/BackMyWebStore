@@ -6,7 +6,7 @@ import com.clothesShop.mypcg.dto.OrderDetailRequestDTO;
 import com.clothesShop.mypcg.dto.OrderDetailResponseDTO;
 import com.clothesShop.mypcg.entity.OrderDetail;
 
-@Component
+/*@Component
 public class OrderDetailMapper {
 
     public OrderDetailResponseDTO mapToDTO(OrderDetail orderDetail) {
@@ -28,5 +28,4 @@ public class OrderDetailMapper {
         // You can set other properties of the entity based on the requestDTO
         return orderDetail;
     }
-}
-
+}*/

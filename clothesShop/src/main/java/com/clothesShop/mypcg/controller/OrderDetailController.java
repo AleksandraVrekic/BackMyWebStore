@@ -9,7 +9,6 @@ import com.clothesShop.mypcg.auth.AuthenticationService;
 import com.clothesShop.mypcg.dto.OrderDetailRequestDTO;
 import com.clothesShop.mypcg.dto.OrderDetailResponseDTO;
 import com.clothesShop.mypcg.entity.OrderDetail;
-import com.clothesShop.mypcg.mapper.OrderDetailMapper;
 import com.clothesShop.mypcg.service.OrderDetailsService;
 
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
+/*
 @RestController
 @RequestMapping("/order-details")
 public class OrderDetailController {
@@ -158,4 +157,4 @@ public class OrderDetailController {
     }
 
 }
-
+*/

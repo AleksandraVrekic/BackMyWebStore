@@ -1,14 +1,16 @@
 package com.clothesShop.mypcg.dto;
 
+import com.clothesShop.mypcg.entity.Role;
+
 public class RegistrationRequestDTO {
     private String username;
     private String password;
-    private String role;
+    private Role role;
 
     public RegistrationRequestDTO() {
     }
 
-    public RegistrationRequestDTO(String username, String password, String role) {
+    public RegistrationRequestDTO(String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role=role;
@@ -30,11 +32,11 @@ public class RegistrationRequestDTO {
         this.password = password;
     }
 
-    public String getUserRole() {
+    public Role getUserRole() {
         return role;
     }
 
-    public void setUserRole(String role) {
+    public void setUserRole(Role role) {
         this.role = role;
     }
 }

@@ -2,24 +2,56 @@ package com.clothesShop.mypcg.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.clothesShop.mypcg.auth.AuthenticationService;
  
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-            .antMatchers("/**").permitAll()
-            .and()
-            .csrf().disable();
-        
-        return http.build();
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .authorizeRequests()
+                .antMatchers("/auth/login", "/auth/register", "/addresses/**","/customers/**", "/accounts/**", "/staff/**").permitAll() // Otvoreni endpointi
+                .antMatchers("/products/**").permitAll() // Allow everyone to view products
+                .antMatchers(HttpMethod.POST, "/products/**").hasRole("ADMIN") // Only admins can add products
+                .antMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN") // Only admins can update products
+                .antMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN") // Only admins can delete products
+                .antMatchers("/categories/**").permitAll() // Allow everyone to view products
+                .antMatchers(HttpMethod.POST, "/categories/**").hasRole("ADMIN") // Only admins can add products
+                .antMatchers(HttpMethod.PUT, "/categories/**").hasRole("ADMIN") // Only admins can update products
+                .antMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN") // Only admins can delete products
+                .antMatchers(HttpMethod.POST, "/orders/**").hasRole("USER") // Only users can create orders
+                .antMatchers(HttpMethod.GET, "/orders/{id}").hasAnyRole("ADMIN", "USER") // Admins and users can view specific orders
+                .antMatchers(HttpMethod.GET, "/orders").hasRole("ADMIN") // Only admins can view all orders
+                .antMatchers(HttpMethod.PUT, "/orders/**").hasRole("ADMIN") 
+                .antMatchers(HttpMethod.DELETE, "/orders/**").hasRole("ADMIN") // Only users can delete their orders
+                .antMatchers(HttpMethod.POST, "/orderItems/**").hasRole("USER") // Only users can create order items
+                .antMatchers(HttpMethod.GET, "/orderItems/{id}").hasAnyRole("ADMIN", "USER") // Admins and users can view specific order items
+                .antMatchers(HttpMethod.PUT, "/orderItems/**").hasRole("USER") // Only users can update their order items
+                .antMatchers(HttpMethod.DELETE, "/orderItems/**").hasRole("USER") // Only users 
+                .anyRequest().authenticated() // Svi ostali zahtevi moraju biti autentifikovani
+            .and()
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 }
 
 

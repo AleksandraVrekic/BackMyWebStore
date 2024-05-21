@@ -3,6 +3,7 @@ package com.clothesShop.mypcg.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.clothesShop.mypcg.entity.Account;
@@ -22,12 +23,14 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+   
     @GetMapping
     public ResponseEntity<List<Account>> getAllAccounts() {
         List<Account> accounts = accountService.getAllAccounts();
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
+    
     @GetMapping("/{id}")
     public ResponseEntity<Account> getAccountById(@PathVariable int id) {
         Optional<Account> accountOptional = accountService.getAccountById(id);

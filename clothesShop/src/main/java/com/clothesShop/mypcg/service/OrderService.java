@@ -9,7 +9,7 @@ import com.clothesShop.mypcg.repository.OrderRepository;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+/*@Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -55,4 +55,4 @@ public class OrderService {
         }
         return false;
     }
-}
+}*/

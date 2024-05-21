@@ -67,6 +67,11 @@
 		    <groupId>org.thymeleaf.extras</groupId>
 		    <artifactId>thymeleaf-extras-springsecurity5</artifactId>
 		</dependency>
+		<dependency>
+    		<groupId>com.stripe</groupId>
+    		<artifactId>stripe-java</artifactId>
+   			<version>20.93.0</version> <!-- Check for the latest version -->
+		</dependency>
 	</dependencies>
 
 	<build>

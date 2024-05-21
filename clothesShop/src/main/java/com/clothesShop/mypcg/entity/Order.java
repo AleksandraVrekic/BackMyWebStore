@@ -1,10 +1,12 @@
 package com.clothesShop.mypcg.entity;
 
+
+
+import java.util.Date;
+
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "orders")
@@ -12,106 +14,87 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "orderid")
+    private Long orderId;
 
-    private double amount;
+    @Column(name = "orderdate")
+    @Temporal(TemporalType.DATE)
+    private Date orderDate;
 
-    @Column(name = "customer_address", length = 255, nullable = false)
-    private String customerAddress;
+    @Column(name = "orderstatus")
+    private String orderStatus;
 
-    @Column(name = "customer_email", length = 128, nullable = false)
-    private String customerEmail;
+    @Column(name = "total_price")
+    private Double totalPrice;
 
-    @Column(name = "customer_name", length = 255, nullable = false)
-    private String customerName;
+    @Column(name = "discount")
+    private Double discount;
 
-    @Column(name = "customer_phone", length = 128, nullable = false)
-    private String customerPhone;
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+    
+	/*@OneToMany(mappedBy="orders", cascade = {CascadeType.ALL})
+	private List<OrderItem> orderItems = new ArrayList<>();*/
 
-    @Column(name = "order_date", nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate orderDate;
-
-    @Column(name = "order_num", nullable = false, unique = true)
-    private Integer orderNum;
-
-    // Constructors, getters, and setters
-
+    // Constructors
     public Order() {
     }
 
-    public Order(double amount, String customerAddress, String customerEmail, String customerName, String customerPhone, LocalDate orderDate, Integer orderNum) {
-        this.amount = amount;
-        this.customerAddress = customerAddress;
-        this.customerEmail = customerEmail;
-        this.customerName = customerName;
-        this.customerPhone = customerPhone;
+    public Order(Date orderDate, String orderStatus, Double totalPrice, Double discount, Account account) {
         this.orderDate = orderDate;
-        this.orderNum = orderNum;
+        this.orderStatus = orderStatus;
+        this.totalPrice = totalPrice;
+        this.discount = discount;
+        this.account = account;
     }
 
-    public Integer getId() {
-        return id;
+    // Getters and setters
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public String getCustomerAddress() {
-        return customerAddress;
-    }
-
-    public void setCustomerAddress(String customerAddress) {
-        this.customerAddress = customerAddress;
-    }
-
-    public String getCustomerEmail() {
-        return customerEmail;
-    }
-
-    public void setCustomerEmail(String customerEmail) {
-        this.customerEmail = customerEmail;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
-    public String getCustomerPhone() {
-        return customerPhone;
-    }
-
-    public void setCustomerPhone(String customerPhone) {
-        this.customerPhone = customerPhone;
-    }
-
-    public LocalDate getOrderDate() {
+    public Date getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDate orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 
-    public Integer getOrderNum() {
-        return orderNum;
+    public String getOrderStatus() {
+        return orderStatus;
     }
 
-    public void setOrderNum(Integer orderNum) {
-        this.orderNum = orderNum;
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public Double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Double discount) {
+        this.discount = discount;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }
-

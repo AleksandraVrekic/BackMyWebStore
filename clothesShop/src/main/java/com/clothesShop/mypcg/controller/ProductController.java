@@ -2,6 +2,7 @@ package com.clothesShop.mypcg.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.clothesShop.mypcg.auth.AuthenticationService;
@@ -59,15 +60,24 @@ public class ProductController {
         return null;
     }
 
-
+    
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Product> createProduct(@RequestHeader("Authorization") String tokenHeader,
+                                                 @RequestBody Product product) {
+        String token = tokenHeader.substring(7); // Remove "Bearer " prefix
+
+        if (!authService.isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         Product createdProduct = productService.createProduct(product);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
         Product product = productService.updateProduct(id, updatedProduct);
         if (product != null) {
@@ -78,6 +88,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
         boolean deleted = productService.deleteProduct(id);
         if (deleted) {
@@ -96,6 +107,12 @@ public class ProductController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+    
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> getProductByProductName(@RequestParam String product_name) {
+        List<Product> products = productService.getProductsByName(product_name);
+        return ResponseEntity.ok(products);
     }
 
 }

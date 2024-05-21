@@ -2,6 +2,8 @@ package com.clothesShop.mypcg.entity;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "accounts")
 public class Account {
@@ -16,18 +18,23 @@ public class Account {
     @Column(name = "password", length = 25, nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "user_role", length = 20, nullable = false)
-    private String userRole;
+    private Role role;
+    
+	@OneToOne(mappedBy = "account")
+	@JsonIgnore
+	private Customer customer;
 
     // Constructors, getters, and setters
 
     public Account() {
     }
 
-    public Account(String userName,String password, String userRole) {
+    public Account(String userName, String password, Role role) {
         this.userName = userName;
         this.password = password;
-        this.userRole = userRole;
+        this.role = role;
     }
 
     public Integer getId() {
@@ -54,12 +61,19 @@ public class Account {
         this.password = password;
     }
 
-    public String getUserRole() {
-        return userRole;
+    public Role getUserRole() {
+        return role;
     }
 
-    public void setUserRole(String userRole) {
-        this.userRole = userRole;
+    public void setUserRole(Role role) {
+        this.role = role;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }
-

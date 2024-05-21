@@ -12,40 +12,83 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.clothesShop.mypcg.dto.RegistrationRequestDTO;
 import com.clothesShop.mypcg.entity.Account;
+import com.clothesShop.mypcg.entity.Role;
 import com.clothesShop.mypcg.exception.AuthenticationException;
 import com.clothesShop.mypcg.exception.RegistrationException;
 import com.clothesShop.mypcg.repository.AccountRepository;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.*;
+
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
+
     private final AccountRepository accountRepository;
     private Set<String> tokenBlacklist = new HashSet<>();
-    
+    private static final long TOKEN_EXPIRATION_TIME = 86400000; // 24 sata u milisekundama
+    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Generišemo tajni ključ
+
     public AuthenticationServiceImpl(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
     @Override
-    public void invalidateToken(String token) {
-        // Add the token to the blacklist
-        tokenBlacklist.add(token);
+    public boolean isAdmin(String token) {
+        if (tokenBlacklist.contains(token)) {
+            return false; // Token je na crnoj listi
+        }
+        return validateTokenRole(token, Role.ADMIN);
     }
-    
+
+    @Override
+    public boolean isCustomer(String token) {
+        if (tokenBlacklist.contains(token)) {
+            return false; // Token je na crnoj listi
+        }
+        return validateTokenRole(token, Role.CUSTOMER);
+    }
+
+    private boolean validateTokenRole(String token, Role role) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY) // koristi generisani ključ za verifikaciju
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            String username = claims.getSubject();
+
+            Optional<Account> accountOptional = accountRepository.findByUserName(username);
+            return accountOptional.isPresent() && accountOptional.get().getUserRole().equals(role);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void invalidateToken(String token) {
+        tokenBlacklist.add(token); // dodaj token na crnu listu
+    }
+
     @Override
     public boolean authenticate(String username, String password) {
-        // Retrieve user from the repository based on the username
         Optional<Account> accountOptional = accountRepository.findByUserName(username);
-        
+
         if (accountOptional.isPresent()) {
             Account account = accountOptional.get();
             if (password.equals(account.getPassword())) {
@@ -54,95 +97,84 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 throw new AuthenticationException("Invalid password");
             }
         }
-        
+
         throw new AuthenticationException("User not found");
     }
-    
-    
-    private static final long TOKEN_EXPIRATION_TIME = 86400000; // 24 hours in milliseconds
-    Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    
+
     @Override
     public String generateToken(String username) {
-        // Set the token expiration time
-
-    	
         long expirationTimeMillis = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME;
-        
-        // Create the claims for the token
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("username", username);
-        
-        // Build the JWT
-        JwtBuilder jwtBuilder = Jwts.builder()
-                .setClaims(claims)
-                .setExpiration(new Date(expirationTimeMillis))
-                .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256));
-        
-        // Generate the token
-        String token = jwtBuilder.compact();
-        
+
+        String token = Jwts.builder()
+                .setSubject(username) // postavi claim, npr. korisničko ime
+                .setExpiration(new Date(expirationTimeMillis)) // postavi vreme isteka tokena
+                .signWith(SECRET_KEY) // koristi generisani ključ za potpisivanje
+                .compact();
+
         return token;
     }
-    
+
     @Override
     public boolean isAuthenticated(String username, HttpServletRequest request) {
-        // Get the current session
         HttpSession session = request.getSession(false);
-        
-        // Check if the session exists and if the user is authenticated
+
         if (session != null && session.getAttribute("authenticatedUser") != null) {
             String authenticatedUsername = (String) session.getAttribute("authenticatedUser");
             return username.equals(authenticatedUsername);
         }
-        
+
         return false;
     }
-    
-
-    @Override
-    public boolean isManager(HttpServletRequest request) {
-        // Retrieve the logged-in username from the request or session
-        String username = getLoggedInUsername(request);
-        
-        // Use the username to check if the user is a manager
-        // Retrieve the account from the repository
-        Optional<Account> accountOptional = accountRepository.findByUserName(username);
-        
-        // Check if the account exists and if the account's role is "manager"
-        return accountOptional.isPresent() && accountOptional.get().getUserRole().equals("ROLE_MANAGER");
-    }
-    
-    private String getLoggedInUsername(HttpServletRequest request) {
-        // Retrieve the username from the request or session, based on your authentication mechanism
-        // For example, if you store the authenticated username in the session attribute
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            return (String) session.getAttribute("authenticatedUser");
-        }
-        
-       
-        
-        return null;
-    }
-    
 
     @Override
     public void registerUser(RegistrationRequestDTO registrationRequest) throws RegistrationException {
-        // Proverite da li korisnik sa istim korisničkim imenom već postoji u bazi
         if (accountRepository.findByUserName(registrationRequest.getUsername()).isPresent()) {
             throw new RegistrationException("Korisničko ime već postoji.");
         }
-        
-        // Kreirajte novi korisnički nalog
+
         Account account = new Account();
         account.setUserName(registrationRequest.getUsername());
         account.setPassword(registrationRequest.getPassword());
         account.setUserRole(registrationRequest.getUserRole());
-        // Postavite ostale podatke korisnika
-        
-        // Sačuvajte korisnika u bazi
+
         accountRepository.save(account);
     }
-}
     
+    @Override
+    public boolean validateToken(String token) {
+        if (tokenBlacklist.contains(token)) {
+            return false; // Token je na crnoj listi
+        }
+        try {
+            Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        Optional<Account> accountOptional = accountRepository.findByUserName(username);
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            return new org.springframework.security.core.userdetails.User(account.getUserName(), account.getPassword(), getAuthorities(account));
+        }
+        throw new UsernameNotFoundException("User not found");
+    }
+
+    private Collection<? extends GrantedAuthority> getAuthorities(Account account) {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + account.getUserRole().name()));
+    }
+}
+
+

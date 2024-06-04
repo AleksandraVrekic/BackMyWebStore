@@ -19,9 +19,9 @@ import com.stripe.model.Customer;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
 import com.stripe.net.Webhook;
-/*
+
 @RestController
-public class StripeWebhookController {
+public class StripeWebhookController {/*
 
     @Autowired
     private OrderService orderService;
@@ -71,6 +71,6 @@ public class StripeWebhookController {
             System.out.println("Order not found for ID: " + orderId);
         }
     }
-
-}
 */
+}
+

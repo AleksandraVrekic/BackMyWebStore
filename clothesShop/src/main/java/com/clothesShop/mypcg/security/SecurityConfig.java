@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.PUT, "/orderItems/**").hasRole("CUSTOMER") // Only users can update their order items
                 .antMatchers(HttpMethod.DELETE, "/orderItems/**").hasRole("CUSTOMER") // Only users 
                 .antMatchers("/auth/register/customer").permitAll()
+                .antMatchers("/webhook").permitAll() 
                 .anyRequest().authenticated() // Svi ostali zahtevi moraju biti autentifikovani
             .and()
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -2,10 +2,15 @@ package com.clothesShop.mypcg.entity;
 
 
 
-import java.util.Date;
 
 import javax.persistence.*;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -34,8 +39,12 @@ public class Order {
     @JoinColumn(name = "account_id")
     private Account account;
     
-	/*@OneToMany(mappedBy="orders", cascade = {CascadeType.ALL})
-	private List<OrderItem> orderItems = new ArrayList<>();*/
+	@OneToOne(mappedBy = "order", cascade = CascadeType.REMOVE)
+	@JsonIgnore
+	private Payment payment;
+    
+	@OneToMany(mappedBy="order", cascade = {CascadeType.ALL})
+	private List<OrderItem> orderItems = new ArrayList<>();
 
     // Constructors
     public Order() {
@@ -97,4 +106,23 @@ public class Order {
     public void setAccount(Account account) {
         this.account = account;
     }
+    
+	public Payment getPayment() {
+		return payment;
+	}
+
+	public void setPayment(Payment payment) {
+		this.payment = payment;
+	}
+	
+	public List<OrderItem> getOrderItems() {
+		return orderItems;
+	}
+
+	public void setOrderItems(List<OrderItem> orderItems) {
+		for (var item : orderItems) {
+			item.setOrder(this);
+		}
+		 this.orderItems = orderItems;
+	}
 }

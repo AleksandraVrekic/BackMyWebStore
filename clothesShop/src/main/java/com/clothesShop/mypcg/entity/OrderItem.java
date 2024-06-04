@@ -2,6 +2,8 @@ package com.clothesShop.mypcg.entity;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
@@ -20,6 +22,7 @@ public class OrderItem {
     
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     // Constructors

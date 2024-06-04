@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -16,14 +17,15 @@ import javax.persistence.Table;
 public class Customer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_gen")
+    @SequenceGenerator(name = "customer_gen", sequenceName = "customer_customer_id_seq", allocationSize = 1)
     @Column(name = "customer_id")
     private Integer id;
 
     @Column(name = "phone")
     private String phone;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "addressId")
     private Address address;
 

@@ -68,9 +68,15 @@
 		    <artifactId>thymeleaf-extras-springsecurity5</artifactId>
 		</dependency>
 		<dependency>
-    		<groupId>com.stripe</groupId>
-    		<artifactId>stripe-java</artifactId>
-   			<version>20.93.0</version> <!-- Check for the latest version -->
+		    <groupId>com.stripe</groupId>
+		    <artifactId>stripe-java</artifactId>
+		    <version>25.8.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.32</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

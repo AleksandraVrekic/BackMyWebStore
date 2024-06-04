@@ -101,18 +101,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         throw new AuthenticationException("User not found");
     }
 
-    @Override
     public String generateToken(String username) {
         long expirationTimeMillis = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME;
+        
+        // Pretpostavimo da imate metod koji vraća korisničku ulogu
+        Role role = getUserRole(username);
 
         String token = Jwts.builder()
-                .setSubject(username) // postavi claim, npr. korisničko ime
-                .setExpiration(new Date(expirationTimeMillis)) // postavi vreme isteka tokena
-                .signWith(SECRET_KEY) // koristi generisani ključ za potpisivanje
+                .setSubject(username)
+                .claim("role", role.name()) // Konvertuje Role u String
+                .setExpiration(new Date(expirationTimeMillis))
+                .signWith(SECRET_KEY)
                 .compact();
 
         return token;
     }
+
+    public Role getUserRole(String username) {
+        Account account = accountRepository.findByuserName(username);
+        if (account != null) {
+            return account.getUserRole();
+        } else {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+    }
+
+
 
     @Override
     public boolean isAuthenticated(String username, HttpServletRequest request) {
@@ -175,6 +189,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private Collection<? extends GrantedAuthority> getAuthorities(Account account) {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + account.getUserRole().name()));
     }
+    
+    @Override
+    public Account findAccountByUsername(String username) throws UsernameNotFoundException {
+        return accountRepository.findByUserName(username)
+                                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    }
+
 }
 
 

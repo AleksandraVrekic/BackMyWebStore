@@ -80,7 +80,14 @@ public class ProductService {
     }
     
     public List<Product> getProductsByName(String name) {
-        return productRepository.findByNameContainingIgnoreCase(name);
+        return productRepository.findByProductNameStartingWith(name);
     }
+    
+    public List<Product> getProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryCategoryId(categoryId);
+    }
+
+    
+    
 }
 

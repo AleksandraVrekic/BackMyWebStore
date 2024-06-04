@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clothesShop.mypcg.dto.LoginRequestDTO;
+import com.clothesShop.mypcg.dto.LoginResponseDTO;
 import com.clothesShop.mypcg.dto.RegistrationRequestDTO;
+import com.clothesShop.mypcg.entity.Account;
 import com.clothesShop.mypcg.exception.AuthenticationException;
 import com.clothesShop.mypcg.exception.RegistrationException;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequest) {
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
         
@@ -38,16 +40,26 @@ public class AuthController {
             // Generate token
             String token = authService.generateToken(username);
             
-            // Return token in the response
-            return ResponseEntity.ok(token);
+            // Retrieve user details
+            Account account = authService.findAccountByUsername(username); // Assume this method exists
+            
+            // Prepare and return the response with account details
+            LoginResponseDTO response = new LoginResponseDTO(
+                token,
+                account.getId(),
+                account.getUserRole().toString(),
+                account.getFirstName(),
+                account.getLastName(),
+                account.getEmail()
+            );
+            
+            return ResponseEntity.ok(response);
         } else {
             // Return unauthorized status if authentication fails
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
-        
-    }
 
+    }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegistrationRequestDTO registrationRequest) {
         try {

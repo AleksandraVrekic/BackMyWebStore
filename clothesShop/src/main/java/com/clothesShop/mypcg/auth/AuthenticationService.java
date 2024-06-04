@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.clothesShop.mypcg.dto.RegistrationRequestDTO;
+import com.clothesShop.mypcg.entity.Account;
 import com.clothesShop.mypcg.exception.AuthenticationException;
 import com.clothesShop.mypcg.exception.RegistrationException;
 
@@ -20,5 +21,6 @@ public interface AuthenticationService {
     boolean validateToken(String token);
     String getUsernameFromToken(String token);
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
-    
+    Account findAccountByUsername(String username) throws UsernameNotFoundException; //
+   
 }

@@ -12,5 +12,8 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
     // You can define custom query methods here if needed
 	Optional<Account> findByUserName(String userName);
+	Account findByuserName(String userName);
+	boolean existsByuserName(String userName);
+
 }
 

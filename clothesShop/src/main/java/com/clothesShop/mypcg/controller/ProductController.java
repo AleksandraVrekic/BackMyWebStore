@@ -1,6 +1,8 @@
 package com.clothesShop.mypcg.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -110,10 +112,21 @@ public class ProductController {
     }
     
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> getProductByProductName(@RequestParam String product_name) {
+    public ResponseEntity<List<Product>> findByProductNameStartingWith(@RequestParam String product_name) {
         List<Product> products = productService.getProductsByName(product_name);
         return ResponseEntity.ok(products);
     }
+    
+    
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
+        List<Product> products = productService.getProductsByCategory(categoryId);
+        if (products.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
 
 }
 

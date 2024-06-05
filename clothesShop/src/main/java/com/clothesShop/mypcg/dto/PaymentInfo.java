@@ -1,31 +1,45 @@
 package com.clothesShop.mypcg.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
-@Data
 public class PaymentInfo {
-
-    private int amount;
+    private long amount;
     private String currency;
+    private List<CartItem> items;
+    private String customerEmail;
 
-
-    // Getter for amount
-    public int getAmount() {
+    // Getters and Setters
+    public long getAmount() {
         return amount;
     }
 
-    // Setter for amount
-    public void setAmount(int amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 
-    // Getter for currency
     public String getCurrency() {
         return currency;
     }
 
-    // Setter for currency
     public void setCurrency(String currency) {
         this.currency = currency;
+    }
+
+    public List<CartItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<CartItem> items) {
+        this.items = items;
+    }
+
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
     }
 }

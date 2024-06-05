@@ -1,7 +1,8 @@
 package com.clothesShop.mypcg.controller;
 
 import java.util.Optional;
-
+import com.clothesShop.mypcg.dto.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
+import com.clothesShop.mypcg.repository.TransactionRepository;
 import com.google.gson.Gson;
 
 @RestController
@@ -31,37 +33,43 @@ public class WebhookController {
     @Value("${stripe.webhook_key}")
     private String stripeKey;
 
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @PostMapping
     public ResponseEntity<String> webhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
         Event event = null;
         try {
-            // Verify signature only if endpoint secret is defined
             if (stripeKey != null && sigHeader != null) {
                 event = Webhook.constructEvent(payload, sigHeader, stripeKey);
             } else {
-                // Deserialize event using GSON without signature verification
                 event = gson.fromJson(payload, Event.class);
             }
         } catch (SignatureVerificationException e) {
-            System.out.println("Failed signature verification");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed signature verification");
         }
 
-        switch (event.getType()) {
-            case "payment_intent.succeeded":
-            case "charge.succeeded":
-                // Handle successful payment
-                break;
-            case "payment_method.attached":
-                // Handle attached payment method
-                break;
-            // ... handle other event types
-            default:
-                // Unexpected event type
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if ("payment_intent.succeeded".equals(event.getType())) {
+            PaymentIntent paymentIntent = (PaymentIntent) event.getData().getObject();
+            String customerEmail = paymentIntent.getMetadata().get("customer_email");
+            long amount = paymentIntent.getAmountReceived();
+            String currency = paymentIntent.getCurrency();
+
+            for (String key : paymentIntent.getMetadata().keySet()) {
+                if (key.startsWith("product_")) {
+                    String productId = key.split("_")[1];
+                    int quantity = Integer.parseInt(paymentIntent.getMetadata().get(key));
+                    Transaction transaction = new Transaction();
+                    transaction.setProductId(productId);
+                    transaction.setAmount(amount);
+                    transaction.setQuantity(quantity);
+                    transaction.setCustomerEmail(customerEmail);
+                    transaction.setCurrency(currency);
+
+                    transactionRepository.save(transaction);
+                }
+            }
         }
-        System.out.println("Success");
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 }

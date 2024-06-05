@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clothesShop.mypcg.dto.CustomerRegistrationDto;
+import com.clothesShop.mypcg.dto.StaffRegistrationDto;
 import com.clothesShop.mypcg.entity.Account;
+import com.clothesShop.mypcg.entity.Staff;
 import com.clothesShop.mypcg.service.RegistrationService;
 
 @RestController
@@ -27,4 +29,15 @@ public class RegistrationController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+    
+    @PostMapping("/register/staff")
+    public ResponseEntity<?> registerStaff(@RequestBody StaffRegistrationDto registrationDto) {
+        try {
+            Staff staff = registrationService.registerNewStaff(registrationDto);
+            return new ResponseEntity<>(staff, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

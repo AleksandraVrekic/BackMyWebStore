@@ -57,6 +57,8 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.GET, "/orderItems/{id}").hasAnyRole("ADMIN", "CUSTOMER") // Admins and users can view specific order items
                 .antMatchers(HttpMethod.PUT, "/orderItems/**").hasRole("CUSTOMER") // Only users can update their order items
                 .antMatchers(HttpMethod.DELETE, "/orderItems/**").hasRole("CUSTOMER") // Only users 
+                .antMatchers(HttpMethod.POST, "/auth/register/customer").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/admin/transactions").hasRole("ADMIN")
                 .antMatchers("/auth/register/customer").permitAll()
                 .antMatchers("/webhook").permitAll() 
                 .anyRequest().authenticated() // Svi ostali zahtevi moraju biti autentifikovani

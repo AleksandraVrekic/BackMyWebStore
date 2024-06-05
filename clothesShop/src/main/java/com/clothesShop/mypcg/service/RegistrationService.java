@@ -6,13 +6,16 @@ import org.springframework.stereotype.Service;
 
 import com.clothesShop.mypcg.dto.CustomerRegistrationDto;
 import com.clothesShop.mypcg.dto.CustomerUpdateDto;
+import com.clothesShop.mypcg.dto.StaffRegistrationDto;
 import com.clothesShop.mypcg.entity.Account;
 import com.clothesShop.mypcg.entity.Customer;
 import com.clothesShop.mypcg.entity.Role;
+import com.clothesShop.mypcg.entity.Staff;
 import com.clothesShop.mypcg.entity.Address;
 import com.clothesShop.mypcg.repository.AccountRepository;
 import com.clothesShop.mypcg.repository.AddressRepository;
 import com.clothesShop.mypcg.repository.CustomerRepository;
+import com.clothesShop.mypcg.repository.StaffRepository;
 
 @Service
 public class RegistrationService {
@@ -22,6 +25,10 @@ public class RegistrationService {
     private CustomerRepository customerRepository;
     @Autowired
     private AddressRepository addressRepository;
+   
+    @Autowired
+    private StaffRepository staffRepository;
+
     /*@Autowired
     private PasswordEncoder passwordEncoder;*/
 
@@ -78,6 +85,28 @@ public class RegistrationService {
 
         customerRepository.save(customer);
         return customer;
+    }
+    
+    public Staff registerNewStaff(StaffRegistrationDto dto) throws Exception {
+        if (accountRepository.existsByuserName(dto.getUserName())) {
+            throw new Exception("Username already exists!");
+        }
+
+        Account newAccount = new Account();
+        newAccount.setUserName(dto.getUserName());
+        newAccount.setPassword(dto.getPassword());
+        newAccount.setFirstName(dto.getName());
+        newAccount.setLastName(dto.getSurname());
+        newAccount.setEmail(dto.getEmail());
+        newAccount.setUserRole(Role.ADMIN); // Pretpostavka da postoji enum Role
+        accountRepository.save(newAccount);
+
+        Staff newStaff = new Staff();
+        newStaff.setPosition(dto.getPosition());
+        newStaff.setAccount(newAccount);
+        staffRepository.save(newStaff);
+
+        return newStaff;
     }
 
 

@@ -21,7 +21,6 @@ public class TransactionController {
     private TransactionRepository transactionRepository;
 
     @GetMapping("/transactions")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Transaction>> getTransactions() {
         List<Transaction> transactions = transactionRepository.findAll();
         return new ResponseEntity<>(transactions, HttpStatus.OK);

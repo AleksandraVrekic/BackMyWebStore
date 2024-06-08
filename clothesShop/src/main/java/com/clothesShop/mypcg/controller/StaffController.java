@@ -59,26 +59,36 @@ public class StaffController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Staff> updateStaff(@PathVariable Integer id, @RequestBody Staff updatedStaff) {
-        Optional<Staff> optionalStaff = staffRepository.findById(id);
-        if (optionalStaff.isPresent()) {
-            Staff staff = optionalStaff.get();
-            staff.setPosition(updatedStaff.getPosition());
-            staff.setAccount(updatedStaff.getAccount());
-            Staff savedStaff = staffRepository.save(staff);
-            return new ResponseEntity<>(savedStaff, HttpStatus.OK);
+    public ResponseEntity<Staff> updateStaff(@PathVariable Integer id, @RequestBody Staff staffDetails) {
+        Optional<Staff> staffOptional = staffRepository.findById(id);
+        if (staffOptional.isPresent()) {
+            Staff staff = staffOptional.get();
+            staff.setPosition(staffDetails.getPosition());
+            Account account = staff.getAccount();
+            account.setFirstName(staffDetails.getAccount().getFirstName());
+            account.setLastName(staffDetails.getAccount().getLastName());
+            account.setEmail(staffDetails.getAccount().getEmail());
+            account.setUserName(staffDetails.getAccount().getUserName());
+            account.setPassword(staffDetails.getAccount().getPassword()); // Ensure password is hashed if needed
+            staff.setAccount(account);
+            Staff updatedStaff = staffRepository.save(staff);
+            return new ResponseEntity<>(updatedStaff, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStaff(@PathVariable Integer id) {
-        if (staffRepository.existsById(id)) {
-            staffRepository.deleteById(id);
+        Optional<Staff> staffOptional = staffRepository.findById(id);
+        if (staffOptional.isPresent()) {
+            staffRepository.delete(staffOptional.get());
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
+
 }

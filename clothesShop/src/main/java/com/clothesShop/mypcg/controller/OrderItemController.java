@@ -36,7 +36,6 @@ public class OrderItemController {
 
     // Endpoint za dobavljanje stavke porudžbine po ID-u
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<OrderItem> getOrderItemById(@PathVariable Long id) {
         Optional<OrderItem> orderItemOptional = orderItemRepository.findById(id);
         return orderItemOptional.map(ResponseEntity::ok)

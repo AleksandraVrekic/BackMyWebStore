@@ -5,12 +5,13 @@ package com.clothesShop.mypcg.entity;
 
 import javax.persistence.*;
 
-
+import com.clothesShop.mypcg.dto.Transaction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 
 @Entity
@@ -38,13 +39,19 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
-    
-	@OneToOne(mappedBy = "order", cascade = CascadeType.REMOVE)
-	@JsonIgnore
-	private Payment payment;
+   
     
 	@OneToMany(mappedBy="order", cascade = {CascadeType.ALL})
 	private List<OrderItem> orderItems = new ArrayList<>();
+	/*
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions;
+    */
+    // Method to format the date
+    public String getFormattedDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM dd yyyy");
+        return sdf.format(orderDate);
+    }
 
     // Constructors
     public Order() {
@@ -106,14 +113,6 @@ public class Order {
     public void setAccount(Account account) {
         this.account = account;
     }
-    
-	public Payment getPayment() {
-		return payment;
-	}
-
-	public void setPayment(Payment payment) {
-		this.payment = payment;
-	}
 	
 	public List<OrderItem> getOrderItems() {
 		return orderItems;
@@ -125,4 +124,5 @@ public class Order {
 		}
 		 this.orderItems = orderItems;
 	}
+	
 }

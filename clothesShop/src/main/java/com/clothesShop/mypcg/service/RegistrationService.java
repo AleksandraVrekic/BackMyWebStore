@@ -32,28 +32,34 @@ public class RegistrationService {
     /*@Autowired
     private PasswordEncoder passwordEncoder;*/
 
-    public Account registerNewCustomer(CustomerRegistrationDto dto) throws Exception {
+    public Customer registerNewCustomer(CustomerRegistrationDto dto) throws Exception {
         if (accountRepository.existsByuserName(dto.getUsername())) {
             throw new Exception("Username already exists!");
         }
 
         Account newAccount = new Account();
         newAccount.setUserName(dto.getUsername());
-        newAccount.setPassword(dto.getPassword()); 
+        newAccount.setPassword(dto.getPassword());
         newAccount.setFirstName(dto.getName());
         newAccount.setLastName(dto.getSurname());
         newAccount.setEmail(dto.getEmail());
-        newAccount.setUserRole(Role.CUSTOMER); // Assuming ERole is an enum
+        newAccount.setUserRole(Role.CUSTOMER); // Assuming Role is an enum
         accountRepository.save(newAccount);
+
+        Address address = new Address();
+        address.setStreet(dto.getStreet());
+        address.setCity(dto.getCity());
+        address.setCountry(dto.getCountry());
+        address.setZip(dto.getZip());
+        addressRepository.save(address);
 
         Customer newCustomer = new Customer();
         newCustomer.setAccount(newAccount);
         newCustomer.setPhone(dto.getPhone());
-        Address address = addressRepository.findById(dto.getAddressId()).orElseThrow(() -> new Exception("Address not found"));
         newCustomer.setAddress(address);
         customerRepository.save(newCustomer);
 
-        return newAccount;
+        return newCustomer;
     }
     
     public Customer updateCustomer(Integer customerId, CustomerUpdateDto dto) throws Exception {
@@ -94,11 +100,11 @@ public class RegistrationService {
 
         Account newAccount = new Account();
         newAccount.setUserName(dto.getUserName());
-        newAccount.setPassword(dto.getPassword());
+        newAccount.setPassword(dto.getPassword()); 
         newAccount.setFirstName(dto.getName());
         newAccount.setLastName(dto.getSurname());
         newAccount.setEmail(dto.getEmail());
-        newAccount.setUserRole(Role.ADMIN); // Pretpostavka da postoji enum Role
+        newAccount.setUserRole(Role.ADMIN); // Assuming ERole is an enum
         accountRepository.save(newAccount);
 
         Staff newStaff = new Staff();

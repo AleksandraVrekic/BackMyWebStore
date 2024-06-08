@@ -2,6 +2,7 @@ package com.clothesShop.mypcg.controller;
 
 import java.util.Optional;
 import com.clothesShop.mypcg.dto.Transaction;
+import com.clothesShop.mypcg.dto.TransactionItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.List;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
@@ -23,6 +24,7 @@ import com.stripe.model.Event;
 import com.stripe.net.Webhook;
 import com.clothesShop.mypcg.repository.TransactionRepository;
 import com.google.gson.Gson;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("webhook")
@@ -55,20 +57,28 @@ public class WebhookController {
             long amount = paymentIntent.getAmountReceived();
             String currency = paymentIntent.getCurrency();
 
+            Transaction transaction = new Transaction();
+            transaction.setCustomerEmail(customerEmail);
+            transaction.setCurrency(currency);
+            transaction.setAmount(amount);
+
+            List<TransactionItem> items = new ArrayList<>();
+
             for (String key : paymentIntent.getMetadata().keySet()) {
                 if (key.startsWith("product_")) {
                     String productId = key.split("_")[1];
                     int quantity = Integer.parseInt(paymentIntent.getMetadata().get(key));
-                    Transaction transaction = new Transaction();
-                    transaction.setProductId(productId);
-                    transaction.setAmount(amount);
-                    transaction.setQuantity(quantity);
-                    transaction.setCustomerEmail(customerEmail);
-                    transaction.setCurrency(currency);
+                    TransactionItem transactionItem = new TransactionItem();
+                    transactionItem.setProductId(productId);
+                    transactionItem.setQuantity(quantity);
+                    transactionItem.setTransaction(transaction);
 
-                    transactionRepository.save(transaction);
+                    items.add(transactionItem);
                 }
             }
+
+            transaction.setItems(items);
+            transactionRepository.save(transaction);
         }
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }

@@ -13,8 +13,8 @@ public class Staff {
     @Column(name = "position")
     private String position;
 
-    @OneToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(name = "account_id") // Ovde je ključ u tabeli Customer koji referiše na Account
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
     // Getters and setters

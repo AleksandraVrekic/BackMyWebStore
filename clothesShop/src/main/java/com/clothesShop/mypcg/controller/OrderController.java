@@ -16,6 +16,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -33,27 +34,18 @@ public class OrderController {
     private PaymentService paymentService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public List<Order> getAllOrders() {
         return orderService.findAllOrders();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         return orderService.findOrderById(id)
                 .map(ResponseEntity::ok)  // Convert Optional<Order> to ResponseEntity<Order>
                 .orElseGet(() -> ResponseEntity.notFound().build());  // Handle case where Order is not found
     }
 
-    /*
-    @PostMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        Order savedOrder = orderService.saveOrder(order);
-        return ResponseEntity.ok(savedOrder);
-    }*/
-    
+
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<Order> createOrder(@RequestHeader("Authorization") String tokenHeader,
@@ -67,7 +59,14 @@ public class OrderController {
         Order savedOrder = orderService.saveOrder(order);
         return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
     }
-
+    
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId, @RequestBody Map<String, String> statusMap) {
+        String status = statusMap.get("status");
+        Order updatedOrder = orderService.updateOrderStatus(orderId, status);
+        return ResponseEntity.ok(updatedOrder);
+    }
+    
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
@@ -77,9 +76,34 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        orderService.deleteOrder(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteOrder(@RequestHeader("Authorization") String tokenHeader, @PathVariable Long id) {
+        String token = tokenHeader.substring(7); // Remove "Bearer " prefix
+
+        if (!authService.isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            orderService.deleteOrder(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            // Log the exception and return an appropriate response
+            System.err.println("Error deleting order: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/customer/{accountId}")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<List<Order>> getCustomerOrders(@RequestHeader("Authorization") String tokenHeader, @PathVariable Integer accountId) {
+        String token = tokenHeader.substring(7); // Remove "Bearer " prefix
+
+        if (!authService.isCustomer(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<Order> orders = orderService.getOrdersByAccountId(accountId);
+        return ResponseEntity.ok(orders);
     }
     
     @PostMapping("/payment-intent")

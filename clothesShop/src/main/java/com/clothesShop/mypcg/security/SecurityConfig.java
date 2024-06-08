@@ -49,18 +49,19 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN") // Only admins can delete products
                 .antMatchers(HttpMethod.POST, "/orders/**").hasRole("CUSTOMER") // Only users can create orders
                 .antMatchers(HttpMethod.POST, "/orders/payment-intent").hasRole("CUSTOMER")
-                .antMatchers(HttpMethod.GET, "/orders/{id}").hasAnyRole("ADMIN", "CUSTOMER") // Admins and users can view specific orders
-                .antMatchers(HttpMethod.GET, "/orders").hasRole("ADMIN") // Only admins can view all orders
-                .antMatchers(HttpMethod.PUT, "/orders/**").hasRole("ADMIN") 
+               // .antMatchers(HttpMethod.GET, "/orders/{id}").hasAnyRole("ADMIN", "CUSTOMER") // Admins and users can view specific orders
+                .antMatchers(HttpMethod.PUT, "/orders/**").permitAll() 
+                .antMatchers(HttpMethod.GET, "/orders/**").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/orders/**").hasRole("ADMIN") // Only users can delete their orders
+                .antMatchers(HttpMethod.GET, "/orderItems/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/orderItems/**").hasRole("CUSTOMER") // Only users can create order items
-                .antMatchers(HttpMethod.GET, "/orderItems/{id}").hasAnyRole("ADMIN", "CUSTOMER") // Admins and users can view specific order items
                 .antMatchers(HttpMethod.PUT, "/orderItems/**").hasRole("CUSTOMER") // Only users can update their order items
-                .antMatchers(HttpMethod.DELETE, "/orderItems/**").hasRole("CUSTOMER") // Only users 
-                .antMatchers(HttpMethod.POST, "/auth/register/customer").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET, "/admin/transactions").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/orderItems/**").hasRole("CUSTOMER") // Only users
+                .antMatchers(HttpMethod.GET, "/admin/transactions").permitAll()
                 .antMatchers("/auth/register/customer").permitAll()
+                .antMatchers("/auth/register/staff").permitAll()
                 .antMatchers("/webhook").permitAll() 
+                
                 .anyRequest().authenticated() // Svi ostali zahtevi moraju biti autentifikovani
             .and()
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

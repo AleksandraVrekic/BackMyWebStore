@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clothesShop.mypcg.dto.CustomerRegistrationDto;
 import com.clothesShop.mypcg.dto.StaffRegistrationDto;
 import com.clothesShop.mypcg.entity.Account;
+import com.clothesShop.mypcg.entity.Customer;
 import com.clothesShop.mypcg.entity.Staff;
 import com.clothesShop.mypcg.service.RegistrationService;
 
@@ -23,8 +24,8 @@ public class RegistrationController {
     @PostMapping("/register/customer")
     public ResponseEntity<?> registerCustomer(@RequestBody CustomerRegistrationDto registrationDto) {
         try {
-            Account account = registrationService.registerNewCustomer(registrationDto);
-            return new ResponseEntity<>(account, HttpStatus.CREATED);
+            Customer customer = registrationService.registerNewCustomer(registrationDto);
+            return new ResponseEntity<>(customer, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

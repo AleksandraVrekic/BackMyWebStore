@@ -3,7 +3,7 @@ package com.clothesShop.mypcg.dto;
 public class CartItem {
     private String productId;
     private int quantity;
-    private int price; // price per item
+    private double price;
 
     // Getters and Setters
     public String getProductId() {
@@ -22,11 +22,11 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 }

@@ -30,7 +30,7 @@ public class PaymentService {
         params.put("currency", paymentInfo.getCurrency());
         params.put("payment_method_types", paymentMethodTypes);
 
-        // Dodavanje metapodataka
+        // Add metadata
         Map<String, String> metadata = new HashMap<>();
         metadata.put("customer_email", paymentInfo.getCustomerEmail());
         for (CartItem item : paymentInfo.getItems()) {
@@ -41,3 +41,4 @@ public class PaymentService {
         return PaymentIntent.create(params);
     }
 }
+

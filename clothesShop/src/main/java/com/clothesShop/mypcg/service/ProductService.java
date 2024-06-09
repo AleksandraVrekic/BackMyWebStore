@@ -1,12 +1,19 @@
 package com.clothesShop.mypcg.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.clothesShop.mypcg.dto.ProductSaleRequest;
 import com.clothesShop.mypcg.entity.Product;
 import com.clothesShop.mypcg.repository.ProductRepository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +27,9 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    @Value("${upload.dir}")
+    private String uploadDir;
+    
     @Autowired
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -36,6 +46,7 @@ public class ProductService {
     public Product createProduct(Product product) {
         return productRepository.save(product);
     }
+
 
     public Product updateProduct(int id, Product updatedProduct) {
         Optional<Product> existingProductOptional = productRepository.findById(id);
@@ -61,24 +72,6 @@ public class ProductService {
         return false;
     }
     
-    public Product sellProduct(ProductSaleRequest request) {
-        Optional<Product> optionalProduct = getProductById(request.getProductId());
-
-        if (optionalProduct.isPresent()) {
-            Product product = optionalProduct.get();
-
-            if (product.getQuantity() >= request.getQuantity()) {
-                product.setQuantity(product.getQuantity() - request.getQuantity());
-                productRepository.save(product);
-                return product;
-            } else {
-                throw new IllegalArgumentException("Insufficient quantity of product available.");
-            }
-        } else {
-            throw new IllegalArgumentException("Product not found.");
-        }
-    }
-    
     public List<Product> getProductsByName(String name) {
         return productRepository.findByProductNameStartingWith(name);
     }
@@ -86,7 +79,14 @@ public class ProductService {
     public List<Product> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategoryCategoryId(categoryId);
     }
-
+    
+    public String saveImage(MultipartFile image) throws IOException {
+        String imageName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+        Path imagePath = Paths.get(uploadDir, imageName);
+        Files.createDirectories(imagePath.getParent());
+        Files.copy(image.getInputStream(), imagePath, StandardCopyOption.REPLACE_EXISTING);
+        return "/uploads/" + imageName; // Relativna putanja do slike
+    }
     
     
 }

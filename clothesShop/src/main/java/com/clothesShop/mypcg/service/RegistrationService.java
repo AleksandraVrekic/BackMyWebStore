@@ -37,6 +37,10 @@ public class RegistrationService {
             throw new Exception("Username already exists!");
         }
 
+        if (accountRepository.existsByEmail(dto.getEmail())) {
+            throw new Exception("Email already exists!");
+        }
+
         Account newAccount = new Account();
         newAccount.setUserName(dto.getUsername());
         newAccount.setPassword(dto.getPassword());

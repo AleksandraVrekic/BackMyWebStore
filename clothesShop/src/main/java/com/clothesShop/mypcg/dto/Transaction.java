@@ -29,7 +29,7 @@ public class Transaction {
     private Integer id;
 
     @Column(name = "amount")
-    private long amount;
+    private double amount; 
 
     @Column(name = "quantity")
     private int quantity;
@@ -59,11 +59,11 @@ public class Transaction {
         this.id = id;
     }
 
-    public long getAmount() {
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
+    public void setAmount(double amount) { // Promenjeno sa long na double
         this.amount = amount;
     }
 

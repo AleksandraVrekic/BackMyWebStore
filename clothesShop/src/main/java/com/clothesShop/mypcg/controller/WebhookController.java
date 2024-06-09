@@ -23,7 +23,9 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
 import com.clothesShop.mypcg.repository.TransactionRepository;
+import com.clothesShop.mypcg.service.EmailService;
 import com.google.gson.Gson;
+
 import java.util.ArrayList;
 
 @RestController
@@ -37,6 +39,9 @@ public class WebhookController {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping
     public ResponseEntity<String> webhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
@@ -60,7 +65,7 @@ public class WebhookController {
             Transaction transaction = new Transaction();
             transaction.setCustomerEmail(customerEmail);
             transaction.setCurrency(currency);
-            transaction.setAmount(amount);
+            transaction.setAmount(amount / 100.0); // Save amount in the correct format
 
             List<TransactionItem> items = new ArrayList<>();
 
@@ -79,7 +84,26 @@ public class WebhookController {
 
             transaction.setItems(items);
             transactionRepository.save(transaction);
+
+            // Slanje potvrde putem emaila
+            String emailBody = generateEmailBody(transaction);
+            emailService.sendSimpleEmail(customerEmail, "Order Confirmation", emailBody);
         }
         return new ResponseEntity<>("Success", HttpStatus.OK);
+    }
+
+    private String generateEmailBody(Transaction transaction) {
+        StringBuilder body = new StringBuilder();
+        body.append("Thank you for your purchase!\n\n");
+        body.append("Transaction Details:\n");
+        body.append("Amount: ").append(transaction.getAmount()).append(" ").append(transaction.getCurrency().toUpperCase()).append("\n");
+        body.append("Items:\n");
+        for (TransactionItem item : transaction.getItems()) {
+            body.append(" - Product ID: ").append(item.getProductId())
+                .append(", Quantity: ").append(item.getQuantity())
+                .append("\n");
+        }
+        body.append("\nThank you for shopping with us!");
+        return body.toString();
     }
 }

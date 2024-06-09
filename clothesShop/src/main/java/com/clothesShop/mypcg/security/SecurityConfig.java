@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.DELETE, "/orderItems/**").hasRole("CUSTOMER") // Only users
                 .antMatchers(HttpMethod.GET, "/admin/transactions").permitAll()
                 .antMatchers("/auth/register/customer").permitAll()
+                .antMatchers("/uploads/**").permitAll()
                 .antMatchers("/auth/register/staff").permitAll()
                 .antMatchers("/webhook").permitAll() 
                 

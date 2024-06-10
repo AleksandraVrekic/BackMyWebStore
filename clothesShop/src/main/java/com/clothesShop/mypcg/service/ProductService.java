@@ -47,7 +47,6 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-
     public Product updateProduct(int id, Product updatedProduct) {
         Optional<Product> existingProductOptional = productRepository.findById(id);
         if (existingProductOptional.isPresent()) {

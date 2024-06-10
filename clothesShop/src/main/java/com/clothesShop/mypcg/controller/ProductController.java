@@ -69,36 +69,19 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> createProduct(@RequestHeader("Authorization") String tokenHeader,
-                                                 @RequestParam("product") String productJson,
-                                                 @RequestParam("image") MultipartFile image) throws IOException {
+                                                 @RequestBody Product product) {
         String token = tokenHeader.substring(7); // Remove "Bearer " prefix
 
         if (!authService.isAdmin(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        Product product = new ObjectMapper().readValue(productJson, Product.class);
-
-        if (!image.isEmpty()) {
-            String imageUrl = productService.saveImage(image);
-            product.setImage(imageUrl);
-        }
-
         Product createdProduct = productService.createProduct(product);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
-    }
+        }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Product> updateProduct(@PathVariable int id,
-                                                 @RequestParam("product") String productJson,
-                                                 @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
-        Product updatedProduct = new ObjectMapper().readValue(productJson, Product.class);
-
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = productService.saveImage(image);
-            updatedProduct.setImage(imageUrl);
-        }
+    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
 
         Product product = productService.updateProduct(id, updatedProduct);
         if (product != null) {

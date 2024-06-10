@@ -27,18 +27,25 @@ public class RegistrationController {
             Customer customer = registrationService.registerNewCustomer(registrationDto);
             return new ResponseEntity<>(customer, HttpStatus.CREATED);
         } catch (Exception e) {
+            if (e.getMessage().equals("Username already exists!") || e.getMessage().equals("Email already exists!")) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            }
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-    
+
     @PostMapping("/register/staff")
     public ResponseEntity<?> registerStaff(@RequestBody StaffRegistrationDto registrationDto) {
         try {
             Staff staff = registrationService.registerNewStaff(registrationDto);
             return new ResponseEntity<>(staff, HttpStatus.CREATED);
         } catch (Exception e) {
+            if (e.getMessage().equals("Username already exists!") || e.getMessage().equals("Email already exists!")) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            }
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 
 }

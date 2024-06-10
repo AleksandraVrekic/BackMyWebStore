@@ -16,7 +16,6 @@ import com.clothesShop.mypcg.repository.AccountRepository;
 import com.clothesShop.mypcg.repository.AddressRepository;
 import com.clothesShop.mypcg.repository.CustomerRepository;
 import com.clothesShop.mypcg.repository.StaffRepository;
-
 @Service
 public class RegistrationService {
     @Autowired
@@ -25,12 +24,8 @@ public class RegistrationService {
     private CustomerRepository customerRepository;
     @Autowired
     private AddressRepository addressRepository;
-   
     @Autowired
     private StaffRepository staffRepository;
-
-    /*@Autowired
-    private PasswordEncoder passwordEncoder;*/
 
     public Customer registerNewCustomer(CustomerRegistrationDto dto) throws Exception {
         if (accountRepository.existsByuserName(dto.getUsername())) {
@@ -65,7 +60,7 @@ public class RegistrationService {
 
         return newCustomer;
     }
-    
+
     public Customer updateCustomer(Integer customerId, CustomerUpdateDto dto) throws Exception {
         Customer customer = customerRepository.findById(customerId)
             .orElseThrow(() -> new Exception("Customer not found"));
@@ -96,19 +91,23 @@ public class RegistrationService {
         customerRepository.save(customer);
         return customer;
     }
-    
+
     public Staff registerNewStaff(StaffRegistrationDto dto) throws Exception {
         if (accountRepository.existsByuserName(dto.getUserName())) {
             throw new Exception("Username already exists!");
         }
 
+        if (accountRepository.existsByEmail(dto.getEmail())) {
+            throw new Exception("Email already exists!");
+        }
+
         Account newAccount = new Account();
         newAccount.setUserName(dto.getUserName());
-        newAccount.setPassword(dto.getPassword()); 
+        newAccount.setPassword(dto.getPassword());
         newAccount.setFirstName(dto.getName());
         newAccount.setLastName(dto.getSurname());
         newAccount.setEmail(dto.getEmail());
-        newAccount.setUserRole(Role.ADMIN); // Assuming ERole is an enum
+        newAccount.setUserRole(Role.ADMIN); // Assuming Role is an enum
         accountRepository.save(newAccount);
 
         Staff newStaff = new Staff();
@@ -119,6 +118,6 @@ public class RegistrationService {
         return newStaff;
     }
 
-
 }
+
 

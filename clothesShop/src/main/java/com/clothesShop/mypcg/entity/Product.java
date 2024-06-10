@@ -9,7 +9,7 @@ public class Product {
     @Id
 	@SequenceGenerator(name="PRODUCT_ID_GENERATOR", sequenceName="PRODUCT_SEQ", allocationSize = 1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="PRODUCT_ID_GENERATOR")
-    @Column(name = "product_id") // Ime kolone u tabeli
+    @Column(name = "product_id")
     private Integer productId;
 
     @Column(name = "name", length = 255, nullable = false)
@@ -21,10 +21,10 @@ public class Product {
     @Column(name = "price", nullable = false)
     private double price;
     
-    @Column(name = "quantity") // Možeš dodati length ako je potrebno
+    @Column(name = "quantity") 
     private Integer quantity;
 
-    @Column(name = "image") // Ako postoji kolona s imenom 'image'
+    @Column(name = "image")
     private String image;
 
 	@ManyToOne()

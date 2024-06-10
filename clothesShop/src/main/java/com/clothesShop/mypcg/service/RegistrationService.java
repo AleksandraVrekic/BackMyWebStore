@@ -65,6 +65,25 @@ public class RegistrationService {
         Customer customer = customerRepository.findById(customerId)
             .orElseThrow(() -> new Exception("Customer not found"));
 
+        Account account = customer.getAccount();
+
+        if (dto.getAccount() != null) {
+            if (!account.getUserName().equals(dto.getAccount().getUserName()) && accountRepository.existsByuserName(dto.getAccount().getUserName())) {
+                throw new Exception("Username already exists!");
+            }
+
+            if (!account.getEmail().equals(dto.getAccount().getEmail()) && accountRepository.existsByEmail(dto.getAccount().getEmail())) {
+                throw new Exception("Email already exists!");
+            }
+
+            account.setUserName(dto.getAccount().getUserName());
+            account.setFirstName(dto.getAccount().getFirstName());
+            account.setLastName(dto.getAccount().getLastName());
+            account.setEmail(dto.getAccount().getEmail());
+            // Consider security implications of updating password
+            accountRepository.save(account);
+        }
+
         customer.setPhone(dto.getPhone());
 
         // Update Address
@@ -77,21 +96,10 @@ public class RegistrationService {
             addressRepository.save(address);
         }
 
-        // Update Account
-        Account account = customer.getAccount();
-        if (account != null && dto.getAccount() != null) {
-            account.setUserName(dto.getAccount().getUserName());
-            account.setFirstName(dto.getAccount().getFirstName());
-            account.setLastName(dto.getAccount().getLastName());
-            account.setEmail(dto.getAccount().getEmail());
-            // Consider security implications of updating password
-            accountRepository.save(account);
-        }
-
         customerRepository.save(customer);
         return customer;
     }
-
+    
     public Staff registerNewStaff(StaffRegistrationDto dto) throws Exception {
         if (accountRepository.existsByuserName(dto.getUserName())) {
             throw new Exception("Username already exists!");
@@ -117,6 +125,7 @@ public class RegistrationService {
 
         return newStaff;
     }
+
 
 }
 

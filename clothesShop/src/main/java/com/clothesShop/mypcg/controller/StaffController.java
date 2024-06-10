@@ -59,24 +59,36 @@ public class StaffController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Staff> updateStaff(@PathVariable Integer id, @RequestBody Staff staffDetails) {
+    public ResponseEntity<?> updateStaff(@PathVariable Integer id, @RequestBody Staff staffDetails) {
         Optional<Staff> staffOptional = staffRepository.findById(id);
         if (staffOptional.isPresent()) {
             Staff staff = staffOptional.get();
-            staff.setPosition(staffDetails.getPosition());
             Account account = staff.getAccount();
+
+            // Check for existing username
+            if (!account.getUserName().equals(staffDetails.getAccount().getUserName()) && accountRepository.existsByuserName(staffDetails.getAccount().getUserName())) {
+                return new ResponseEntity<>("Username already exists!", HttpStatus.CONFLICT);
+            }
+
+            // Check for existing email
+            if (!account.getEmail().equals(staffDetails.getAccount().getEmail()) && accountRepository.existsByEmail(staffDetails.getAccount().getEmail())) {
+                return new ResponseEntity<>("Email already exists!", HttpStatus.CONFLICT);
+            }
+
             account.setFirstName(staffDetails.getAccount().getFirstName());
             account.setLastName(staffDetails.getAccount().getLastName());
             account.setEmail(staffDetails.getAccount().getEmail());
             account.setUserName(staffDetails.getAccount().getUserName());
             account.setPassword(staffDetails.getAccount().getPassword()); // Ensure password is hashed if needed
             staff.setAccount(account);
+            staff.setPosition(staffDetails.getPosition());
             Staff updatedStaff = staffRepository.save(staff);
             return new ResponseEntity<>(updatedStaff, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 
 
     @DeleteMapping("/{id}")

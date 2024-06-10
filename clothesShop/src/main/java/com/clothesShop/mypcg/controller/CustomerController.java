@@ -56,6 +56,9 @@ public class CustomerController {
             Customer updatedCustomer = registrationService.updateCustomer(id, dto);
             return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
         } catch (Exception e) {
+            if (e.getMessage().equals("Username already exists!") || e.getMessage().equals("Email already exists!")) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            }
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }

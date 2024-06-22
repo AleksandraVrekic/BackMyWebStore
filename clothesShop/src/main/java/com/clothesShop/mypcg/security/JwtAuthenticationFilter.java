@@ -1,6 +1,9 @@
 package com.clothesShop.mypcg.security;
 
 import io.jsonwebtoken.Claims;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.clothesShop.mypcg.auth.AuthenticationService;
+import com.clothesShop.mypcg.auth.AuthenticationServiceImpl;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,9 +24,10 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final AuthenticationService authenticationService;
+    private final AuthenticationServiceImpl authenticationService;
 
-    public JwtAuthenticationFilter(AuthenticationService authenticationService) {
+    @Autowired
+    public JwtAuthenticationFilter(@Lazy AuthenticationServiceImpl authenticationService) {
         this.authenticationService = authenticationService;
     }
 

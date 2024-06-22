@@ -26,6 +26,8 @@ public class RegistrationService {
     private AddressRepository addressRepository;
     @Autowired
     private StaffRepository staffRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public Customer registerNewCustomer(CustomerRegistrationDto dto) throws Exception {
         if (accountRepository.existsByuserName(dto.getUsername())) {
@@ -38,7 +40,7 @@ public class RegistrationService {
 
         Account newAccount = new Account();
         newAccount.setUserName(dto.getUsername());
-        newAccount.setPassword(dto.getPassword());
+        newAccount.setPassword(passwordEncoder.encode(dto.getPassword())); // Hashovanje lozinke
         newAccount.setFirstName(dto.getName());
         newAccount.setLastName(dto.getSurname());
         newAccount.setEmail(dto.getEmail());
@@ -80,6 +82,10 @@ public class RegistrationService {
             account.setFirstName(dto.getAccount().getFirstName());
             account.setLastName(dto.getAccount().getLastName());
             account.setEmail(dto.getAccount().getEmail());
+            if (dto.getAccount().getPassword() != null && !dto.getAccount().getPassword().isEmpty()) {
+                account.setPassword(passwordEncoder.encode(dto.getAccount().getPassword())); // Hashovanje lozinke
+            }
+
             // Consider security implications of updating password
             accountRepository.save(account);
         }
@@ -111,11 +117,11 @@ public class RegistrationService {
 
         Account newAccount = new Account();
         newAccount.setUserName(dto.getUserName());
-        newAccount.setPassword(dto.getPassword());
+        newAccount.setPassword(passwordEncoder.encode(dto.getPassword())); // Hashovanje lozinke
         newAccount.setFirstName(dto.getName());
         newAccount.setLastName(dto.getSurname());
         newAccount.setEmail(dto.getEmail());
-        newAccount.setUserRole(Role.ADMIN); // Assuming Role is an enum
+        newAccount.setUserRole(dto.getRole()); // Postavljanje role iz DTO-a
         accountRepository.save(newAccount);
 
         Staff newStaff = new Staff();

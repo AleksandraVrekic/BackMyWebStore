@@ -1,5 +1,6 @@
 package com.clothesShop.mypcg.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,7 @@ import com.clothesShop.mypcg.auth.AuthenticationService;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
@@ -38,7 +40,7 @@ public class SecurityConfig {
         	.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         	.and()
             .authorizeRequests()
-                .antMatchers("/auth/login", "/auth/register", "/addresses/**","/customers/**", "/accounts/**", "/staff/**", "/auth/logout").permitAll() // Otvoreni endpointi
+                .antMatchers("/auth/login", "/auth/register", "/addresses/**","/customers/**", "/accounts/**", "/auth/logout").permitAll() // Otvoreni endpointi
                 .antMatchers("/products/**").permitAll() // Allow everyone to view products
                 .antMatchers(HttpMethod.POST, "/products/**").hasRole("ADMIN") // Only admins can add products
                 .antMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN") // Only admins can update products
@@ -60,7 +62,10 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.GET, "/admin/transactions").permitAll()
                 .antMatchers("/auth/register/customer").permitAll()
                 .antMatchers("/uploads/**").permitAll()
-                .antMatchers("/auth/register/staff").permitAll()
+                .antMatchers("/auth/register/staff").hasRole("SUPER_ADMIN")
+                .antMatchers(HttpMethod.GET, "/staff/**").hasAnyRole("SUPER_ADMIN", "ADMIN") // Svi zaposleni mogu da vide listu svih zaposlenih
+                .antMatchers(HttpMethod.PUT, "/staff/**").hasRole("SUPER_ADMIN") // Samo SUPER_ADMIN može uređivati zaposlene
+                .antMatchers(HttpMethod.DELETE, "/staff/**").hasRole("SUPER_ADMIN") // Samo SUPER_ADMIN može brisati zaposlene
                 .antMatchers("/webhook").permitAll() 
                 
                 .anyRequest().authenticated() // Svi ostali zahtevi moraju biti autentifikovani

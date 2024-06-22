@@ -15,6 +15,7 @@ public interface AuthenticationService {
     String generateToken(String username);
     boolean isAuthenticated(String token, HttpServletRequest request);
     boolean isAdmin(String token);
+    boolean isSuperAdmin(String token);
     boolean isCustomer(String token); // Dodata metoda za proveru da li je korisnik Customer
     void registerUser(RegistrationRequestDTO registrationRequest) throws RegistrationException;
     void invalidateToken(String token);

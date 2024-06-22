@@ -16,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.clothesShop.mypcg.dto.RegistrationRequestDTO;
@@ -43,9 +44,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private Set<String> tokenBlacklist = new HashSet<>();
     private static final long TOKEN_EXPIRATION_TIME = 86400000; // 24 sata u milisekundama
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Generišemo tajni ključ
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationServiceImpl(AccountRepository accountRepository) {
+    public AuthenticationServiceImpl(AccountRepository accountRepository,PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
+        this.passwordEncoder = passwordEncoder;
+
     }
 
     @Override
@@ -54,6 +58,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return false; // Token je na crnoj listi
         }
         return validateTokenRole(token, Role.ADMIN);
+    }
+   
+    @Override
+    public boolean isSuperAdmin(String token) {
+        if (tokenBlacklist.contains(token)) {
+            return false; // Token is blacklisted
+        }
+        return validateTokenRole(token, Role.SUPER_ADMIN);
     }
 
     @Override
@@ -91,7 +103,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         if (accountOptional.isPresent()) {
             Account account = accountOptional.get();
-            if (password.equals(account.getPassword())) {
+            if (passwordEncoder.matches(password, account.getPassword())) { // Provera lozinke
                 return true;
             } else {
                 throw new AuthenticationException("Invalid password");
@@ -148,7 +160,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         Account account = new Account();
         account.setUserName(registrationRequest.getUsername());
-        account.setPassword(registrationRequest.getPassword());
+        account.setPassword(passwordEncoder.encode(registrationRequest.getPassword())); // Hashovanje lozinke
         account.setUserRole(registrationRequest.getUserRole());
 
         accountRepository.save(account);

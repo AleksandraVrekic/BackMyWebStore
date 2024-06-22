@@ -2,5 +2,6 @@ package com.clothesShop.mypcg.entity;
 
 public enum Role {
     CUSTOMER,
-    ADMIN
+    ADMIN,
+    SUPER_ADMIN // Nova uloga iznad admina
 }

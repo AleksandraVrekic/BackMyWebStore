@@ -7,5 +7,5 @@ import com.clothesShop.mypcg.entity.Address;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Integer> {
-    // Možete dodati dodatne metode za prilagođene upite
+
 }

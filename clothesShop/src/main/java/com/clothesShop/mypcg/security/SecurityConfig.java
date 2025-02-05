@@ -42,19 +42,19 @@ public class SecurityConfig {
             .authorizeRequests()
                 .antMatchers("/auth/login", "/auth/register", "/addresses/**","/customers/**", "/accounts/**", "/auth/logout").permitAll() // Otvoreni endpointi
                 .antMatchers("/products/**").permitAll() // Allow everyone to view products
-                .antMatchers(HttpMethod.POST, "/products/**").hasRole("ADMIN") // Only admins can add products
-                .antMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN") // Only admins can update products
-                .antMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN") // Only admins can delete products
+                .antMatchers(HttpMethod.POST, "/products/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Only admins can add products
+                .antMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Only admins can update products
+                .antMatchers(HttpMethod.DELETE, "/products/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Only admins can delete products
                 .antMatchers("/categories/**").permitAll() // Allow everyone to view products
-                .antMatchers(HttpMethod.POST, "/categories/**").hasRole("ADMIN") // Only admins can add products
-                .antMatchers(HttpMethod.PUT, "/categories/**").hasRole("ADMIN") // Only admins can update products
-                .antMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN") // Only admins can delete products
+                .antMatchers(HttpMethod.POST, "/categories/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Only admins can add products
+                .antMatchers(HttpMethod.PUT, "/categories/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Only admins can update products
+                .antMatchers(HttpMethod.DELETE, "/categories/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Only admins can delete products
                 .antMatchers(HttpMethod.POST, "/orders/**").hasRole("CUSTOMER") // Only users can create orders
                 .antMatchers(HttpMethod.POST, "/orders/payment-intent").hasRole("CUSTOMER")
                // .antMatchers(HttpMethod.GET, "/orders/{id}").hasAnyRole("ADMIN", "CUSTOMER") // Admins and users can view specific orders
                 .antMatchers(HttpMethod.PUT, "/orders/**").permitAll() 
                 .antMatchers(HttpMethod.GET, "/orders/**").permitAll()
-                .antMatchers(HttpMethod.DELETE, "/orders/**").hasRole("ADMIN") // Only users can delete their orders
+                .antMatchers(HttpMethod.DELETE, "/orders/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Only users can delete their orders
                 .antMatchers(HttpMethod.GET, "/orderItems/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/orderItems/**").hasRole("CUSTOMER") // Only users can create order items
                 .antMatchers(HttpMethod.PUT, "/orderItems/**").hasRole("CUSTOMER") // Only users can update their order items

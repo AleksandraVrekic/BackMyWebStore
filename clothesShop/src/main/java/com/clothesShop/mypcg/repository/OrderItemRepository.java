@@ -7,5 +7,5 @@ import com.clothesShop.mypcg.entity.OrderItem;
 
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
-    // Možete dodati dodatne metode potrebne za pristup podacima o stavkama porudžbine
+ 
 }

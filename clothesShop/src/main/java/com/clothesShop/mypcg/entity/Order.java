@@ -52,6 +52,11 @@ public class Order {
         SimpleDateFormat sdf = new SimpleDateFormat("MM dd yyyy");
         return sdf.format(orderDate);
     }
+    
+    // Metoda za dobijanje emaila iz povezanog Account objekta
+    public String getCustomerEmail() {
+        return account != null ? account.getEmail() : null;
+    }
 
     // Constructors
     public Order() {

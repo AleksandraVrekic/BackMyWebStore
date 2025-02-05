@@ -10,11 +10,12 @@ import com.clothesShop.mypcg.entity.Account;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Integer> {
 
-    // You can define custom query methods here if needed
 	Optional<Account> findByUserName(String userName);
 	Account findByuserName(String userName);
 	boolean existsByuserName(String userName);
 	boolean existsByEmail(String email);
+    // Dodaj metodu za pronalaženje naloga po email adresi
+    Optional<Account> findByEmail(String email);
 
 }
 

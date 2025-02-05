@@ -65,15 +65,11 @@ public class ProductController {
 
     
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Product> createProduct(@RequestHeader("Authorization") String tokenHeader,
                                                  @RequestParam("product") String productJson,
                                                  @RequestParam("image") MultipartFile image) throws IOException {
         String token = tokenHeader.substring(7); // Remove "Bearer " prefix
-
-        if (!authService.isAdmin(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         Product product = new ObjectMapper().readValue(productJson, Product.class);
 
@@ -87,7 +83,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Product> updateProduct(@PathVariable int id,
                                                  @RequestParam("product") String productJson,
                                                  @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
@@ -107,7 +103,7 @@ public class ProductController {
     }
 	
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
         boolean deleted = productService.deleteProduct(id);
         if (deleted) {
